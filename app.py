@@ -1,9 +1,11 @@
-from flask import Flask
+from flask import Flask, flash, redirect, url_for, session, request, logging
 from flask.globals import request
 from flask.json import jsonify
 from flask_restful import Api, Resource
 import warnings
 import json
+from functools import wraps
+
 
 # Automatically ignore warning messages
 warnings.filterwarnings('ignore')
@@ -24,21 +26,54 @@ class Login(Resource):
         data = request.get_json(force = True)
         print(data)
         # todo: login verification
-        find = [user for user in userdatas if user["ID"] == data[0]["ID"]]       
+        find = [user for user in userdatas if user["ID"] == data["ID"]]       
         if len(find) == 0:
             return jsonify({'msg':'User not found'})
         else:
             user = find[0]
-            if data[0]['password'] == user['password']:
+            if data['password'] == user['password']:
                 return jsonify({'msg':'User {} login successfuly!'.format(user['ID'])})
+                session['logged_in'] = True
+                session['username'] = username
             else:
                 return jsonify({'msg':'Wrong password!'})
+
+def is_logged_in(f):
+    @wraps(f)
+    def wrap(*args, **kwargs):
+        if 'logged_in' in session:
+            return f(*args, **kwargs)
+        else:
+            flash('Unauthorized, Please login', 'danger')
+            return redirect(url_for('Login'))
+    return wrap
+    
+class SaveReserve(Resource):
+    def post(self):
+        data = request.get_json(force = True)
+        userId = data["ID"]
+        vaccDate = data["date"]
+        vaccType = data["type"]
+        # TODO : Save data to server
+        return jsonify({'msg':'Reserve vaccine successful!'})
+
+class checkReserve(Resource):
+    def post(self):
+        data = request.get_json(force = True)
+        userId = data["ID"]
+        #TODO : get all reserve of this userID
+        return jsonify({'msg':'Check reserve successful!'
+                        , 'date':'some date'
+                        , 'type':'some type'})
+
 
 
 
 
 api.add_resource(Home, '/')
 api.add_resource(Login, "/Login")
+api.add_resource(SaveReserve,  '/reserve')
+api.add_resource(checkReserve,  '/check')
 
 
 # Closing file
