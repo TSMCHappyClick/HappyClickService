@@ -1,4 +1,4 @@
-from flask import Flask, session, render_template, url_for, redirect
+from flask import Flask, render_template
 from flask.globals import request
 from flask.json import jsonify
 from flask_restful import Api, Resource
@@ -22,6 +22,14 @@ userdatas = json.load(f)
 class User(UserMixin):
     pass
 
+@app.after_request
+def after_request(response):
+    response.headers.add('Access-Control-Allow-Origin', '*')
+    response.headers.add('Access-Control-Allow-Headers', 'Content-Type,Authorization')
+    response.headers.add('Access-Control-Allow-Methods', 'GET,PUT,POST,DELETE')
+    return response
+
+
 def query_user(user_id):
     for user in userdatas:
         if user_id == user['ID']:
@@ -42,9 +50,15 @@ class Login(Resource):
         return render_template('login.html')
     def post(self):
         data = request.get_json(force = True)
-        ID = data[0]['ID']
-        password = data[0]['password']
+
+        ID = int(data['ID'])
+        password = data['password']
+        print('ID:{},password:{}'.format(ID,password))
+        print(type(ID))
+        print(type(password))
+
         user = query_user(ID)
+        # user = query_user(password)
         if user is not None and password == user['password']:
 
             curr_user = User()
@@ -52,10 +66,16 @@ class Login(Resource):
 
             # 通過Flask-Login的login_user方法登入使用者
             login_user(curr_user)
-            # Jump to reserve page if login
-            return redirect('http://localhost:8080/HappyClick/#/reserve')
+            print('Succesfully login!')
+            # 回傳true給前端去做redirect page
+            return True
+            
 
-        return jsonify({'msg':'Wrong id or password!'})
+            
+        print('Login fail!')
+        return  jsonify({'msg':'Wrong id or password!'})
+
+
 
 
 
@@ -75,4 +95,5 @@ api.add_resource(logout, "/logout")
 f.close()
 
 if __name__ == '__main__':
+
     app.run(host="localhost", port=8088, threaded=True, debug=True)
