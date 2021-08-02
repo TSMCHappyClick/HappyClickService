@@ -2,14 +2,22 @@ from flask import Flask, render_template
 from flask.globals import request
 from flask.json import jsonify
 from flask_restful import Api, Resource
+from db_model import db
+from db_model import Userdata, Formdata, Vaccinedata
 from flask_login import LoginManager, UserMixin, login_user, logout_user, login_required, current_user
+import configparser
 import json
 import os
 
 app = Flask(__name__)
 api = Api(app)
-# Set up session's secret key (for 加密)
+# Set up session's secret key (for 加密) and load database config
+db_config = configparser.ConfigParser()
+db_config.read('db_config.ini')
+db_config = db_config["database"]
 app.config['SECRET_KEY'] = os.urandom(24)
+app.config['SQLALCHEMY_DATABASE_URI'] = f'mysql://{db_config["username"]}:{db_config["password"]}@{db_config["host"]}:{db_config["port"]}/{db_config["database"]}'
+app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 # Bundle flask and flask-login together
 login_manager = LoginManager()
 login_manager.init_app(app)
@@ -18,6 +26,7 @@ login_manager.login_view = 'login'
 # open db
 f = open('Database.json')
 userdatas = json.load(f)
+db.init_app(app)
 
 class User(UserMixin):
     pass
