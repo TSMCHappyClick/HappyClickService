@@ -23,7 +23,7 @@ from flask_sqlalchemy import SQLAlchemy
 
 db = SQLAlchemy()
 
-class Userdata(db.Model):
+class UserData(db.Model):
     __tablename__ = 'userdata'
     ID = db.Column(db.Integer, primary_key=True) 
     Name = db.Column(db.String(64)) 
@@ -31,13 +31,11 @@ class Userdata(db.Model):
     identity = db.Column(db.String(64))
     email = db.Column(db.String(64), unique=True)
     division = db.Column(db.String(64))
-    vaccine_type = db.Column(db.String(64), default="Null")
-    vaccination = db.Column(db.String(64), default="N")
 
     def __repr__(self):
         return "<Userdata %r>" % self.ID
 
-class Formdata(db.Model):
+class FormData(db.Model):
     __tablename__ = 'formdata'
     form_id = db.Column(db.Integer, primary_key=True) 
     user_id = db.Column(db.Integer) 
@@ -48,7 +46,7 @@ class Formdata(db.Model):
     def __repr__(self):
         return "<Formdata %r>" % self.form_id
 
-class Vaccinedata(db.Model):
+class VaccineData(db.Model):
     __tablename__ = 'vaccinedata' 
     vaccine_id = db.Column(db.Integer, primary_key=True)
     date = db.Column(db.Date) 
@@ -57,3 +55,13 @@ class Vaccinedata(db.Model):
 
     def __repr__(self):
         return '<Vaccinedata %r>' % self.vaccine_id
+
+class VaccinatedData(db.Model):
+    __tablename__ = 'userdata'
+    vaccinated_id = db.Column(db.Integer, primary_key=True) 
+    vaccinated_name = db.Column(db.String(64)) 
+    vaccine_type = db.Column(db.String(64), default="Null")
+    vaccine_date = db.Column(db.Date)
+
+    def __repr__(self):
+        return "<VaccinatedData %r>" % self.vaccinated_id
