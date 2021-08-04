@@ -96,7 +96,7 @@ class CheckReserve(Resource):
             vaccine_date = reserveRecord['date']
             return jsonify({'msg':'Check reserve successful!'
                             , 'vaccine_type': vaccine_type
-                            , 'date': str(vaccine_date)})
+                            , 'date': vaccine_date})
         else:
             return jsonify({'msg': 'No reservation found!'})
 
