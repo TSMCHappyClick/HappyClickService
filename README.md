@@ -6,7 +6,7 @@
 ## UserData
     ID = 工號 (integer)
     Name = 名字 (string)
-    password = 密碼 (integer)
+    password = 密碼 (hash)
     identity = 身分類別 (staff, employee, med) (string)
     division = 廠區 (string)
     department = 部門 (string)
