@@ -20,8 +20,8 @@ app = Flask(__name__)
 app.config['SQLALCHEMY_DATABASE_URI'] = f'mysql+pymysql://{username}:{password}@{host}:{port}/{database}'
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 db = SQLAlchemy(app)
+# db.create_all()
 
-db.create_all()
 # 1. Add new users
 # user_list = []
 # for i in range(5):

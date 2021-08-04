@@ -58,6 +58,7 @@ class Vaccinedata(db.Model):
     date = db.Column(db.Date) 
     vaccine_type = db.Column(db.String(64))
     vaccine_amount = db.Column(db.Integer) 
+    reserve_amount = db.Column(db.Integer)
 
     def __repr__(self):
-        return '<User %r>' % self.vaccine_id
+        return '<Vaccine %r>' % self.vaccine_id
