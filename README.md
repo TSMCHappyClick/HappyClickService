@@ -49,11 +49,11 @@
     - ID (integer)
 - Output : 
 	- 有查到 --> 
-    	- msg(str)
-    	- vaccine_type(str)
-    	- date(str)
+    	- msg (string)
+    	- vaccine_type (string)
+    	- date (string)
 	- 沒查到 --> 
-	    - msg(str)
+	    - msg (string)
 
 ### 刪除預約 (RemoveReserve) : ./Remove  (POST)
 - Input : 
@@ -62,9 +62,9 @@
     - vaccine_type (string)
 - Output : 
 	- 有查到 --> 
-	    - msg(str)
+	    - msg (string)
 	- 沒查到 -->
-	    - msg(str)
+	    - msg (string)
 
 ### 回傳可預約時段 (ReturnAvailable) : ./ReturnAvailable  (GET)
 - Call : 
