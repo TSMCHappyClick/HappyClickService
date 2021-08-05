@@ -9,7 +9,6 @@
     password = 密碼 (hash)
     identity = 身分類別 (staff, employee, med) (string)
     division = 廠區 (string)
-    department = 部門 (string)
     email = 信箱 (string)
 ## FormData
     form_id = 表單id (integer)
@@ -17,6 +16,7 @@
     Name = 預約的使用者 (string)
     vaccine_type = 預約的疫苗類別 (string)
     date = 預約的接種日期 (string, ex. 2021/08/02)
+    status = 是否接種(boolean, 預設false)
 ## VaccineData
     vaccine_id = 疫苗id (integer)
     date = 日期 (string, ex. 2021/08/02)
@@ -26,9 +26,9 @@
 ## VaccinatedData
     ID = 接種人工號 (integer)   
     Name = 接種者名字 (string)
-    vaccine_type = 接種疫苗類別 (string)
-    date = 接種疫苗日期 (string, ex. 2021/08/02)
-    
+    ~~vaccine_type = 接種疫苗類別 (string)~~
+    vaccinated_times = 接種疫苗次數 (int)
+    ~~date = 接種疫苗日期 (string, ex. 2021/08/02)~~
 ## StaffData
     ID = 主管工號 (integer)   
     employees = 下屬們的工號 [xxx,xxx,....,xxx]（integer）
