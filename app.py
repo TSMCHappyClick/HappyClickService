@@ -74,7 +74,7 @@ class SaveReserve(Resource):
 
         if (checkVaccineAmount(vaccDate, vaccType)):
             # add data to DB
-            conn.happyclick.FormData.insert_one({'form_id': formId, 'ID': userId, 'Name': username, 'vaccine_type': vaccType, 'date': vaccDate})
+            conn.happyclick.FormData.insert_one({'form_id': formId, 'ID': userId, 'Name': username, 'vaccine_type': vaccType, 'date': vaccDate, 'status': False})
             # update reserve amount
             vaccineRecord = conn.happyclick.VaccineData.find_one({'date': vaccDate, 'vaccine_type': vaccType})
             conn.happyclick.VaccineData.update_one({'date': vaccDate, 'vaccine_type': vaccType}, 
@@ -89,9 +89,9 @@ class CheckReserve(Resource):
     def post(self):
         data = request.get_json(force = True)
         userId = data["ID"]
-        reserveRecord = conn.happyclick.FormData.find_one({'ID': userId})
-        # print("\nvaccine type: "+reserveRecord['vaccine_type']+", vaccine date: "+str(reserveRecord['date']))
+        reserveRecord = conn.happyclick.FormData.find_one({'ID': userId, 'status': False}) # prevend DB from query vaccinated record
         if reserveRecord :
+            print('\nFind one unvaccinated reserve!')
             vaccine_type = reserveRecord['vaccine_type']
             vaccine_date = reserveRecord['date']
             return jsonify({'msg':'Check reserve successful!'
@@ -108,8 +108,9 @@ class RemoveReserve(Resource):
         vaccDate = data["date"]
         vaccType = data["vaccine_type"]
         # send request to delete data in DB
-        reserveRecord = conn.happyclick.FormData.find_one({'ID': userId, 'date': vaccDate, 'vaccine_type': vaccType})
+        reserveRecord = conn.happyclick.FormData.find_one({'ID': userId, 'date': vaccDate, 'vaccine_type': vaccType, 'status': False})
         if reserveRecord:
+            print('\nFind one unvaccinated reserve!')
             conn.happyclick.FormData.delete_one({'ID': userId, 'date': vaccDate, 'vaccine_type': vaccType})
             # update reserve amount
             vaccineRecord = conn.happyclick.VaccineData.find_one({'date': vaccDate, 'vaccine_type': vaccType})
@@ -128,7 +129,7 @@ class ReturnAvailable(Resource):
         # implement json file of remaining vaccine for frontend
         returnList = []
         for i in availableList:
-            vaccineDict = {'date': str(i['date']),
+            vaccineDict = {'date': i['date'],
                             'vaccine_type': i['vaccine_type'],
                             'vaccine_remaining': i['vaccine_amount'] - i['reserve_amount']}
             returnList.append(vaccineDict)
