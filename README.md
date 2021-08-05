@@ -69,7 +69,11 @@
 ### 回傳可預約時段 (ReturnAvailable) : ./ReturnAvailable  (GET)
 - Call : 
 	- 可預約 --> 
-	    - List of {date(str), vaccine_type(str), vaccine_remaining(int)}
+	    - List of {
+	   	 - date (string), 
+	  	 - vaccine_type (string), 
+	   	 - vaccine_remaining (integer)
+	    - }
 	- 不可約 --> 
 	    - 不列入
 
