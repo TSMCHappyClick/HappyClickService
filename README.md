@@ -28,6 +28,11 @@
     Name = 接種者名字 (string)
     vaccine_type = 接種疫苗類別 (string)
     date = 接種疫苗日期 (string, ex. 2021/08/02)
+    
+## StaffData
+    ID = 主管工號 (integer)   
+    employees = 下屬們的工號 [xxx,xxx,....,xxx]（integer）
+    division = 主管所屬廠區（string）
 
 # Reserve API
 
