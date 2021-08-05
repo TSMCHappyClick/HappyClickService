@@ -16,14 +16,60 @@
     ID = 工號 (integer)
     Name = 預約的使用者 (string)
     vaccine_type = 預約的疫苗類別 (string)
-    vaccine_date = 預約的接種日期 (date 年月日, ex. 2021/08/02)
+    date = 預約的接種日期 (string, ex. 2021/08/02)
 ## VaccineData
     vaccine_id = 疫苗id (integer)
-    date = 日期 (date 年月日, ex. 2021/08/02)
+    date = 日期 (string, ex. 2021/08/02)
     vaccine_type = 疫苗類別 (string)
     vaccine_amount = 疫苗存量 (integer)
+    reserve_amount = 預約數量 (integer)
 ## VaccinatedData
     ID = 接種人工號 (integer)   
     Name = 接種者名字 (string)
     vaccine_type = 接種疫苗類別 (string)
-    vaccine_date = 接種疫苗日期 (date 年月日, ex. 2021/08/02)
+    date = 接種疫苗日期 (string, ex. 2021/08/02)
+
+# Reserve API
+
+### 新增預約 (SaveReserve) : ./Reserve  (POST)
+- Input : 
+    - ID (integer)
+    - Name (string)
+    - date (string)
+    - vaccine_type (string)
+- Output : 
+	- 可預約 --> 
+	    - msg (string)
+	- 不能預約 --> 
+    	- msg (string)
+
+
+### 查詢紀錄 (CheckReserve) : ./Check  (POST)
+- Input : 
+    - ID (integer)
+- Output : 
+	- 有查到 --> 
+    	- msg(str)
+    	- vaccine_type(str)
+    	- date(str)
+	- 沒查到 --> 
+	    - msg(str)
+
+### 刪除預約 (RemoveReserve) : ./Remove  (POST)
+- Input : 
+    - ID (integer)
+    - date (string)
+    - vaccine_type (string)
+- Output : 
+	- 有查到 --> 
+	    - msg(str)
+	- 沒查到 -->
+	    - msg(str)
+
+### 回傳可預約時段 (ReturnAvailable) : ./ReturnAvailable  (GET)
+- Call : 
+	- 可預約 --> 
+	    - List of {date(str), vaccine_type(str), vaccine_remaining(int)}
+	- 不可約 --> 
+	    - 不列入
+
