@@ -80,9 +80,9 @@ server on heroku
 
 ### 新增預約 (SaveReserve) : ./saveReserve  (POST)
 - Input : 
-    - ID (integer)
-    - Name (string)
-    - date (string)
+    - ID   	   (string)
+    - Name 	   (string)
+    - date 	   (string)
     - vaccine_type (string)
 - Output : 
 	- 可預約 --> 
@@ -93,7 +93,7 @@ server on heroku
 
 ### 查詢紀錄 (CheckReserve) : ./checkReserve  (POST)
 - Input : 
-    - ID (integer)
+    - ID (string)
 - Output : 
 	- 有查到 --> 
     	- msg (string)
