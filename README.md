@@ -45,7 +45,8 @@ server on heroku
 ### logout (GET)
 - Input : 無
 - Output : 
-    - {'msg':'Logged out successfully!'}
+    - 如果有登入{'msg':'Logged out successfully!'}
+    - 如果沒登入{'msg':'not login yet!'}
 
 
 # 疫苗使用率狀況 API. (dashboard頁面直接顯示出以下三個）
@@ -56,6 +57,7 @@ server on heroku
 - Input : 無
 - Output : 
     - {'shot': [XXX,...,XXX], 'not_shot': [XXX,XXX,XXX,...,XXX]}
+    - 如果沒登入{'msg':'not login yet!'}
 ### 各種疫苗的施打率
 - Input : 無
 - Output : 
