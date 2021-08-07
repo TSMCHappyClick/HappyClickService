@@ -1,6 +1,0 @@
-Flask==1.1.2
-Flask-RESTful==0.3.8
-Flask-SQLAlchemy
-Flask-Login
-flask_pymongo
-dnspython
