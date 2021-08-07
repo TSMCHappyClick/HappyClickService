@@ -30,7 +30,6 @@ class Home(Resource):
     def get(self):
         print('hello world')
         return jsonify({'msg':'Hello World'})
-conn = db.connection()
 
 # Set up session's secret key (for 加密) and load database config
 app.config['SECRET_KEY'] = os.urandom(24)
@@ -122,14 +121,14 @@ def checkVaccineAmount(vaccDate, vaccType):
     vaccineRecord = conn.happyclick.VaccineData.find_one({'date': vaccDate, 'vaccine_type': vaccType})
     reserveAmount = vaccineRecord['reserve_amount']
     vaccineAmount = vaccineRecord['vaccine_amount']
-    
+
     if reserveAmount < vaccineAmount:
         return True # return true if reserve less than total amount
     else : 
         return False # return false if reserve equals to total amount (or other exception)
 
-@login_required
 class SaveReserve(Resource):
+    @login_required
     def post(self):
         # get data from frontend json
         data = request.get_json(force = True)
@@ -158,8 +157,9 @@ class SaveReserve(Resource):
         else :
             return jsonify({'msg':'Reservation chosen is full!'})
 
-@login_required
+
 class CheckReserve(Resource):
+    @login_required
     def post(self):
         data = request.get_json(force = True)
         userId = data["ID"]
@@ -174,8 +174,9 @@ class CheckReserve(Resource):
         else:
             return jsonify({'msg': 'No reservation found!'})
 
-@login_required
+
 class RemoveReserve(Resource):
+    @login_required
     def post(self):
         # get data from frontend json
         data = request.get_json(force = True)
