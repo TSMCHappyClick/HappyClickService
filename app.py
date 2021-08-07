@@ -1,4 +1,5 @@
 from flask import Flask, render_template
+from flask import json
 from flask.globals import request
 from flask.json import jsonify
 from flask_restful import Api, Resource
@@ -38,6 +39,15 @@ def after_request(response):
 def query_user(user_id):
     return list(conn.happyclick.UserData.find({"ID":user_id}))
     
+def find_employees_under_staff(staff_id):
+    staffs = list(conn.happyclick.StaffData.find({'ID':staff_id}))
+    for employeeID in staffs[0]['employees']:
+        # find staff 底下 employee 注射狀況
+        employees = list(conn.happyclick.FormData.find({'ID':employeeID}))
+        for employee in employees:
+            if employee['status']:
+                print(employee)
+
 
 @login_manager.user_loader
 def load_user(user_id):
@@ -48,22 +58,6 @@ def load_user(user_id):
         return curr_user
 
 
-class Register(Resource):
-    def post(self):
-        datas = request.get_json(force=True)
-        Name = datas['Name']
-        ID = datas['ID']
-        identity = datas['identity']
-        email = datas['email']
-        password = datas['password']
-        division = datas['division']
-        department = datas['department']
-
-        conn.happyclick.UserData.insert_one({'Name':Name,'ID':ID,'password':password,'identity':identity,'email':email, 'division':division, 'department':department})
-        print("insert user {} completed".format(ID))
-
-        return True
-
 class Login(Resource):
     def get():
         return render_template('login.html')
@@ -73,22 +67,28 @@ class Login(Resource):
         ID = int(data['ID'])
         password = data['password']
         print('ID:{},password:{}'.format(ID,password))
-
+        
         user = query_user(ID)
-        # user = query_user(password)
+
         if user is not None and password == user[0]['password']:
 
             curr_user = User()
             curr_user.id = ID
 
-            # 通過Flask-Login的login_user方法登入使用者
+            # 通過Flask-Login的login_user方法登入使用者Í
             login_user(curr_user)
             print('Succesfully login!')
             # 回傳true給前端去做redirect page
-            return True
+            if ID in db.meds:
+                return jsonify ({
+                    'identity':'med'
+                })
+            return jsonify({
+                'identity' : 'employee'
+            })
             
         print('Login fail!')
-        return  jsonify({'msg':'Wrong id or password!'})
+        return  jsonify({'identity':'Wrong id or password!'})
 
 
 
@@ -100,7 +100,6 @@ def logout():
 
 
 api.add_resource(Login, "/Login")
-api.add_resource(Register, "/Register")
 
 
 
