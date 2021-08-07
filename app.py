@@ -273,12 +273,12 @@ def logout():
 
 api.add_resource(login, "/login")
 api.add_resource(find_employees_under_staff, "/find_employees_under_staff")
-api.add_resource(UpdateVaccinated, '/UpdateVaccinated')
-api.add_resource(SearchFormData, '/SearchFormData')
-api.add_resource(SaveReserve,  '/Reserve')
-api.add_resource(CheckReserve,  '/Check')
-api.add_resource(RemoveReserve,  '/Remove')
-api.add_resource(ReturnAvailable, "/ReturnAvailable")
+api.add_resource(UpdateVaccinated, '/updateVaccinated')
+api.add_resource(SearchFormData, '/searchFormdata')
+api.add_resource(SaveReserve,  '/saveReserve')
+api.add_resource(CheckReserve,  '/checkReserve')
+api.add_resource(RemoveReserve,  '/removeReserve')
+api.add_resource(ReturnAvailable, "/returnAvailable")
 
 if __name__ == '__main__':
     app.run(host="localhost", port=8088, threaded=True, debug=True)

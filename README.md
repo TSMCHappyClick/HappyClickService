@@ -61,7 +61,7 @@ server on heroku
 - Output : 
 
 # Health center API
-### SearchFormData 查詢預約接種名單 (POST)
+### SearchFormData 查詢預約接種名單 ./searchFormdata (POST)
 - Input : 
     - date (string, ex. {"date":"2021/08/12"})
 - Output : 
@@ -69,7 +69,7 @@ server on heroku
         - list[{form_id(integer), vaccine_type(string), ID(integer), Name(string)}, .....]
     - 沒資料 
         - {'msg' : 'No FormData data!'}
-### UpdateVaccinated 上傳接種資料 (POST)
+### UpdateVaccinated 上傳接種資料 ./updateVaccinated (POST)
 - Input : 
     - {form_id(integer), ID(integer), Name(string)}
 - Output : 
@@ -78,7 +78,7 @@ server on heroku
 
 # Reserve API
 
-### 新增預約 (SaveReserve) : ./Reserve  (POST)
+### 新增預約 (SaveReserve) : ./saveReserve  (POST)
 - Input : 
     - ID (integer)
     - Name (string)
@@ -91,7 +91,7 @@ server on heroku
     	- msg (string)
 
 
-### 查詢紀錄 (CheckReserve) : ./Check  (POST)
+### 查詢紀錄 (CheckReserve) : ./checkReserve  (POST)
 - Input : 
     - ID (integer)
 - Output : 
@@ -102,7 +102,7 @@ server on heroku
 	- 沒查到 --> 
 	    - msg (string)
 
-### 刪除預約 (RemoveReserve) : ./Remove  (POST)
+### 刪除預約 (RemoveReserve) : ./removeReserve  (POST)
 - Input : 
     - ID (integer)
     - date (string)
@@ -113,7 +113,7 @@ server on heroku
 	- 沒查到 -->
 	    - msg (string)
 
-### 回傳可預約時段 (ReturnAvailable) : ./ReturnAvailable  (GET)
+### 回傳可預約時段 (ReturnAvailable) : ./returnAvailable  (GET)
 - Call : 
 	- 可預約 --> 
 	    - List of {
