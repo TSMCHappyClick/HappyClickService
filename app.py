@@ -281,6 +281,30 @@ class ReturnAvailable(Resource):
         else:
             return jsonify({'msg':'not login yet!'})
 
+class UpdateVaccine(Resource):
+    def post(self):
+        if session.get('ID'):
+            vaccine_id_dict = {"AZ": 1, "MD": 2, "BNT": 3}
+            # get data from frontend json
+            vaccine_data = request.get_json(force=True)
+            conn.happyclick.VaccineData.insert(
+                    {"vaccine_id": vaccine_id_dict[vaccine_data["vaccine_type"]], 
+                    "date": vaccine_data["date"], 
+                    "reserve_amount": 0,
+                    "vaccine_amount": vaccine_data["vaccine_amount"],
+                    "vaccine_type": vaccine_data["vaccine_type"]})
+            # db_vaccine_data = conn.happyclick.VaccinatedData.find_one(
+            #     {"vaccine_type": vaccine_data["vaccine_type"], "date": vaccine_data["date"]})
+            # if db_vaccine_data is None:
+            #     conn.happyclick.VaccinatedData.insert(
+            #         {"vaccine_id": vaccine_data["ID"], "Name": vaccine_data["Name"], "vaccine_data": 0})
+            # conn.happyclick.VaccinatedData.update({"vaccine_type": vaccine_data["vaccine_type"], "date": vaccine_data["date"]}, {
+            #                                       "$inc": {"vaccine_amount": 1}})
+            return jsonify({'msg': 'Update Vaccine successful!'})
+        else:
+            return jsonify({'msg':'not login yet!'})
+
+            
 @app.route('/logout')
 def logout():
     if session.get('ID'):
@@ -299,6 +323,7 @@ api.add_resource(SaveReserve,  '/saveReserve')
 api.add_resource(CheckReserve,  '/checkReserve')
 api.add_resource(RemoveReserve,  '/removeReserve')
 api.add_resource(ReturnAvailable, "/returnAvailable")
+api.add_resource(UpdateVaccine, '/updateVaccine')
 
 if __name__ == '__main__':
     app.run(host="localhost", port=8088, threaded=True, debug=True)
