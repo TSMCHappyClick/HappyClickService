@@ -1,11 +1,11 @@
 from flask import Flask, render_template
-from flask import json
 from flask.globals import request
 from flask.json import jsonify
 from flask_restful import Api, Resource
 from flask_login import LoginManager, UserMixin, login_user, logout_user, login_required, current_user
 import os
 import database as db
+import hashlib
 
 app = Flask(__name__)
 api = Api(app)
@@ -13,7 +13,7 @@ api = Api(app)
 # connect to db
 conn = db.connection()
 
-# Set up session's secret key (for 加密) and load database config
+# Set up session's secret key (for 加密)
 app.config['SECRET_KEY'] = os.urandom(24)
 
 # Bundle flask and flask-login together
@@ -36,59 +36,84 @@ def after_request(response):
 
 
 
-def query_user(user_id):
-    return list(conn.happyclick.UserData.find({"ID":user_id}))
+def check_user_existence(user_id):
+    user = list(conn.happyclick.UserData.find({"ID":user_id}))
+    if user == []:
+        return False
+    return True
     
-def find_employees_under_staff(staff_id):
-    staffs = list(conn.happyclick.StaffData.find({'ID':staff_id}))
-    for employeeID in staffs[0]['employees']:
-        # find staff 底下 employee 注射狀況
-        employees = list(conn.happyclick.FormData.find({'ID':employeeID}))
-        for employee in employees:
-            if employee['status']:
-                print(employee)
+def return_hash(password):
+    # use sha-1 to encrypt password
+    sha1 = hashlib.sha1()
+    sha1.update(password.encode('utf-8'))
+    password_sha1_data = sha1.hexdigest()
+
+    return password_sha1_data
+
 
 
 @login_manager.user_loader
 def load_user(user_id):
-    if query_user(user_id) is not None:
+    if check_user_existence(user_id):
         curr_user = User()
         curr_user.id = user_id
 
         return curr_user
 
 
-class Login(Resource):
+class login(Resource):
     def get():
         return render_template('login.html')
     def post(self):
         data = request.get_json(force = True)
 
         ID = int(data['ID'])
-        password = data['password']
+        password_before_hash = data['password']
+        password = return_hash(password_before_hash)
         print('ID:{},password:{}'.format(ID,password))
         
-        user = query_user(ID)
+        user_exist = check_user_existence(ID)
+        if not user_exist:
+            return  jsonify({'identity':'No user to be found!'})
+        else:
+            user = list(conn.happyclick.UserData.find({"ID":ID}))
+            if password == user[0]['password']:
 
-        if user is not None and password == user[0]['password']:
+                curr_user = User()
+                curr_user.id = ID
 
-            curr_user = User()
-            curr_user.id = ID
-
-            # 通過Flask-Login的login_user方法登入使用者Í
-            login_user(curr_user)
-            print('Succesfully login!')
-            # 回傳true給前端去做redirect page
-            if ID in db.meds:
-                return jsonify ({
-                    'identity':'med'
+                # 通過Flask-Login的login_user方法登入使用者
+                login_user(curr_user)
+                print('Succesfully login!')
+                # 查看是否是醫療人員
+                if ID in db.meds:
+                    return jsonify ({
+                        'identity':'med'
+                    })
+                return jsonify({
+                    'identity' : 'employee'
                 })
-            return jsonify({
-                'identity' : 'employee'
-            })
-            
-        print('Login fail!')
-        return  jsonify({'identity':'Wrong id or password!'})
+                
+            print('Login fail!')
+            return  jsonify({'identity':'Wrong id or password!'})
+
+
+# find staff 底下 employee 注射狀況
+class find_employees_under_staff(Resource):
+    def get(self):
+
+        staffs = list(conn.happyclick.StaffData.find({'ID':current_user.id}))
+        result = {'shot':[],'not_shot':[]}
+
+        for employeeID in staffs[0]['employees']:
+            employee = list(conn.happyclick.VaccinatedData.find({'ID':int(employeeID)}))
+            if employee:
+                result['shot'].append(employee[0]['ID'])
+            # 將其他沒注射的加進來
+            else:
+                result['not_shot'].append(employeeID)
+
+        return result
 
 
 
@@ -99,7 +124,8 @@ def logout():
     return jsonify({'msg':'Logged out successfully!'})
 
 
-api.add_resource(Login, "/Login")
+api.add_resource(login, "/login")
+api.add_resource(find_employees_under_staff, "/find_employees_under_staff")
 
 
 
