@@ -39,11 +39,13 @@ def after_request(response):
     response.headers.add('Access-Control-Allow-Methods', 'GET,PUT,POST,DELETE')
     return response
 
+
 def check_user_existence(user_id):
-    user = list(conn.happyclick.UserData.find({"ID":user_id}))
+    user = list(conn.happyclick.UserData.find({"ID": user_id}))
     if user == []:
         return False
     return True
+
 
 def return_hash(password):
     # use sha-1 to encrypt password
@@ -52,7 +54,7 @@ def return_hash(password):
     password_sha1_data = sha1.hexdigest()
 
     return password_sha1_data
-    
+
 
 @login_manager.user_loader
 def load_user(user_id):
@@ -66,19 +68,20 @@ def load_user(user_id):
 class login(Resource):
     def get():
         return render_template('login.html')
+
     def post(self):
-        data = request.get_json(force = True)
+        data = request.get_json(force=True)
 
         ID = int(data['ID'])
         password_before_hash = data['password']
         password = return_hash(password_before_hash)
-        print('ID:{},password:{}'.format(ID,password))
-        
+        print('ID:{},password:{}'.format(ID, password))
+
         user_exist = check_user_existence(ID)
         if not user_exist:
-            return  jsonify({'identity':'No user to be found!'})
+            return jsonify({'identity': 'No user to be found!'})
         else:
-            user = list(conn.happyclick.UserData.find({"ID":ID}))
+            user = list(conn.happyclick.UserData.find({"ID": ID}))
             if password == user[0]['password']:
 
                 curr_user = User()
@@ -89,25 +92,27 @@ class login(Resource):
                 print('Succesfully login!')
                 # 查看是否是醫療人員
                 if ID in db.meds:
-                    return jsonify ({
-                        'identity':'med'
+                    return jsonify({
+                        'identity': 'med'
                     })
                 return jsonify({
-                    'identity' : 'employee'
+                    'identity': 'employee'
                 })
-                
+
             print('Login fail!')
-            return  jsonify({'identity':'Wrong id or password!'})
+            return jsonify({'identity': 'Wrong id or password!'})
+
 
 # find staff 底下 employee 注射狀況
 class find_employees_under_staff(Resource):
     def get(self):
 
-        staffs = list(conn.happyclick.StaffData.find({'ID':current_user.id}))
-        result = {'shot':[],'not_shot':[]}
+        staffs = list(conn.happyclick.StaffData.find({'ID': current_user.id}))
+        result = {'shot': [], 'not_shot': []}
 
         for employeeID in staffs[0]['employees']:
-            employee = list(conn.happyclick.VaccinatedData.find({'ID':int(employeeID)}))
+            employee = list(conn.happyclick.VaccinatedData.find(
+                {'ID': int(employeeID)}))
             if employee:
                 result['shot'].append(employee[0]['ID'])
             # 將其他沒注射的加進來
