@@ -138,6 +138,27 @@ class UpdateVaccinated(Resource):
         return jsonify({'msg': 'Update Vaccinated successful!'})
 
 
+class UpdateVaccine(Resource):
+    def post(self):
+        vaccine_id_dict = {"AZ": 1, "MD": 2, "BNT": 3}
+        # get data from frontend json
+        vaccine_data = request.get_json(force=True)
+        conn.happyclick.VaccineData.insert(
+                {"vaccine_id": vaccine_id_dict[vaccine_data["vaccine_type"]], 
+                 "date": vaccine_data["date"], 
+                 "reserve_amount": 0,
+                 "vaccine_amount": vaccine_data["vaccine_amount"],
+                 "vaccine_type": vaccine_data["vaccine_type"]})
+        # db_vaccine_data = conn.happyclick.VaccinatedData.find_one(
+        #     {"vaccine_type": vaccine_data["vaccine_type"], "date": vaccine_data["date"]})
+        # if db_vaccine_data is None:
+        #     conn.happyclick.VaccinatedData.insert(
+        #         {"vaccine_id": vaccine_data["ID"], "Name": vaccine_data["Name"], "vaccine_data": 0})
+        # conn.happyclick.VaccinatedData.update({"vaccine_type": vaccine_data["vaccine_type"], "date": vaccine_data["date"]}, {
+        #                                       "$inc": {"vaccine_amount": 1}})
+        return jsonify({'msg': 'Update Vaccine successful!'})
+
+
 class SearchFormData(Resource):
     def post(self):
         datas_to_front = []
@@ -271,6 +292,7 @@ def logout():
 api.add_resource(login, "/login")
 api.add_resource(find_employees_under_staff, "/find_employees_under_staff")
 api.add_resource(UpdateVaccinated, '/updateVaccinated')
+api.add_resource(UpdateVaccine, '/updateVaccine')
 api.add_resource(SearchFormData, '/searchFormdata')
 api.add_resource(SaveReserve,  '/saveReserve')
 api.add_resource(CheckReserve,  '/checkReserve')
