@@ -171,7 +171,6 @@ def checkVaccineAmount(vaccDate, vaccType):
 
 
 class SaveReserve(Resource):
-    @login_required
     def post(self):
         # get data from frontend json
         data = request.get_json(force=True)
@@ -206,7 +205,6 @@ class SaveReserve(Resource):
 
 
 class CheckReserve(Resource):
-    @login_required
     def post(self):
         data = request.get_json(force=True)
         userId = data["ID"]
@@ -222,7 +220,6 @@ class CheckReserve(Resource):
 
 
 class RemoveReserve(Resource):
-    @login_required
     def post(self):
         # get data from frontend json
         data = request.get_json(force=True)
