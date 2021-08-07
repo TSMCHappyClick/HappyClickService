@@ -1,4 +1,4 @@
-from flask import Flask, render_template
+from flask import Flask, render_template, session  
 from flask import json
 from flask.globals import request
 from flask.json import jsonify
@@ -86,6 +86,8 @@ class login(Resource):
 
                 curr_user = User()
                 curr_user.id = ID
+                
+                session['ID'] = ID
 
                 # 通過Flask-Login的login_user方法登入使用者
                 login_user(curr_user)
@@ -106,20 +108,22 @@ class login(Resource):
 # find staff 底下 employee 注射狀況
 class find_employees_under_staff(Resource):
     def get(self):
+        if session.get('ID'):
+            staffs = list(conn.happyclick.StaffData.find({'ID': session.get('ID')}))
+            result = {'shot': [], 'not_shot': []}
 
-        staffs = list(conn.happyclick.StaffData.find({'ID': current_user.id}))
-        result = {'shot': [], 'not_shot': []}
+            for employeeID in staffs[0]['employees']:
+                employee = list(conn.happyclick.VaccinatedData.find(
+                    {'ID': int(employeeID)}))
+                if employee:
+                    result['shot'].append(employee[0]['ID'])
+                # 將其他沒注射的加進來
+                else:
+                    result['not_shot'].append(employeeID)
 
-        for employeeID in staffs[0]['employees']:
-            employee = list(conn.happyclick.VaccinatedData.find(
-                {'ID': int(employeeID)}))
-            if employee:
-                result['shot'].append(employee[0]['ID'])
-            # 將其他沒注射的加進來
-            else:
-                result['not_shot'].append(employeeID)
-
-        return result
+            return result
+        else:
+            return jsonify({'msg':'not login yet!'})
 
 
 class UpdateVaccinated(Resource):
@@ -136,27 +140,6 @@ class UpdateVaccinated(Resource):
         conn.happyclick.VaccinatedData.update({"ID": vaccinated_data["ID"]}, {
                                               "$inc": {"vaccinated_times": 1}})
         return jsonify({'msg': 'Update Vaccinated successful!'})
-
-
-class UpdateVaccine(Resource):
-    def post(self):
-        vaccine_id_dict = {"AZ": 1, "MD": 2, "BNT": 3}
-        # get data from frontend json
-        vaccine_data = request.get_json(force=True)
-        conn.happyclick.VaccineData.insert(
-                {"vaccine_id": vaccine_id_dict[vaccine_data["vaccine_type"]], 
-                 "date": vaccine_data["date"], 
-                 "reserve_amount": 0,
-                 "vaccine_amount": vaccine_data["vaccine_amount"],
-                 "vaccine_type": vaccine_data["vaccine_type"]})
-        # db_vaccine_data = conn.happyclick.VaccinatedData.find_one(
-        #     {"vaccine_type": vaccine_data["vaccine_type"], "date": vaccine_data["date"]})
-        # if db_vaccine_data is None:
-        #     conn.happyclick.VaccinatedData.insert(
-        #         {"vaccine_id": vaccine_data["ID"], "Name": vaccine_data["Name"], "vaccine_data": 0})
-        # conn.happyclick.VaccinatedData.update({"vaccine_type": vaccine_data["vaccine_type"], "date": vaccine_data["date"]}, {
-        #                                       "$inc": {"vaccine_amount": 1}})
-        return jsonify({'msg': 'Update Vaccine successful!'})
 
 
 class SearchFormData(Resource):
@@ -193,77 +176,80 @@ def checkVaccineAmount(vaccDate, vaccType):
 
 class SaveReserve(Resource):
     def post(self):
-        # get data from frontend json
-        data = request.get_json(force=True)
-        # get maximum form ID from old data in DB
-        largestFormId = conn.happyclick.FormData.find_one(
-            sort=[("form_id", pymongo.DESCENDING)])
-        formId_max = largestFormId['form_id']
-        # print("\nCurrent form ID: " + str(formId_max))
+        if session.get('ID'):
+            # get data from frontend json
+            data = request.get_json(force=True)
+            # get maximum form ID from old data in DB
+            largestFormId = conn.happyclick.FormData.find_one(
+                sort=[("form_id", pymongo.DESCENDING)])
+            formId_max = largestFormId['form_id']
+            # print("\nCurrent form ID: " + str(formId_max))
 
-        # implement json file request send to DB
-        formId = formId_max + 1
-        userId = data["ID"]
-        username = data["Name"]
-        vaccDate = data["date"]
-        vaccType = data["vaccine_type"]
+            # implement json file request send to DB
+            formId = formId_max + 1
+            userId =    data["ID"]
+            username =  data["Name"]
+            vaccDate =  data["date"]
+            vaccType =  data["vaccine_type"]
 
-        if (checkVaccineAmount(vaccDate, vaccType)):
-            # add data to DB
-            conn.happyclick.FormData.insert_one({'form_id': formId, 'ID': int(
-                userId), 'Name': username, 'vaccine_type': vaccType, 'date': vaccDate, 'status': False})
-            # update reserve amount
-            vaccineRecord = conn.happyclick.VaccineData.find_one(
-                {'date': vaccDate, 'vaccine_type': vaccType})
-            conn.happyclick.VaccineData.update_one({'date': vaccDate, 'vaccine_type': vaccType},
-                                                   {'$set': {
-                                                       "reserve_amount": vaccineRecord['reserve_amount'] + 1}},
-                                                   upsert=False)
-            # TODO : handle exception
-            return jsonify({'msg': 'Reservation of vaccine successful!'})
-        else:
-            return jsonify({'msg': 'Reservation chosen is full!'})
+            if (checkVaccineAmount(vaccDate, vaccType)):
+                # add data to DB
+                conn.happyclick.FormData.insert_one({'form_id': formId, 'ID': int(userId),
+                                                    'Name': username, 'vaccine_type': vaccType, 'date': vaccDate, 'status': False})
+                # update reserve amount
+                vaccineRecord = conn.happyclick.VaccineData.find_one(
+                    {'date': vaccDate, 'vaccine_type': vaccType})
+                conn.happyclick.VaccineData.update_one({'date': vaccDate, 'vaccine_type': vaccType},
+                                                    {'$set': {
+                                                        "reserve_amount": vaccineRecord['reserve_amount'] + 1}},
+                                                    upsert=False)
+                # TODO : handle exception
+                return jsonify({'msg': 'Reservation of vaccine successful!'})
+            else:
+                return jsonify({'msg': 'Reservation chosen is full!'})
 
 
 class CheckReserve(Resource):
     def post(self):
-        data = request.get_json(force=True)
-        userId = data["ID"]
-        reserveRecord = conn.happyclick.FormData.find_one(
-            {'ID': int(userId), 'status': False})  # prevend DB from query vaccinated record
-        if reserveRecord:
-            print('\nFind one unvaccinated reserve!')
-            vaccine_type = reserveRecord['vaccine_type']
-            vaccine_date = reserveRecord['date']
-            return jsonify({'msg': 'Check reserve successful!', 'vaccine_type': vaccine_type, 'date': vaccine_date})
-        else:
-            return jsonify({'msg': 'No reservation found!'})
+        if session.get('ID'):
+            data = request.get_json(force=True)
+            userId = data["ID"]
+            reserveRecord = conn.happyclick.FormData.find_one(
+                {'ID': int(userId), 'status': False})  # prevend DB from query vaccinated record
+            if reserveRecord:
+                print('\nFind one unvaccinated reserve!')
+                vaccine_type = reserveRecord['vaccine_type']
+                vaccine_date = reserveRecord['date']
+                return jsonify({'msg': 'Check reserve successful!', 'vaccine_type': vaccine_type, 'date': vaccine_date})
+            else:
+                return jsonify({'msg': 'No reservation found!'})
 
 
 class RemoveReserve(Resource):
     def post(self):
-        # get data from frontend json
-        data = request.get_json(force=True)
-        userId = data["ID"]
-        vaccDate = data["date"]
-        vaccType = data["vaccine_type"]
-        # send request to delete data in DB
-        reserveRecord = conn.happyclick.FormData.find_one(
-            {'ID': int(userId), 'date': vaccDate, 'vaccine_type': vaccType, 'status': False})
-        if reserveRecord:
-            print('\nFind one unvaccinated reserve!')
-            conn.happyclick.FormData.delete_one(
-                {'ID': userId, 'date': vaccDate, 'vaccine_type': vaccType})
-            # update reserve amount
-            vaccineRecord = conn.happyclick.VaccineData.find_one(
-                {'date': vaccDate, 'vaccine_type': vaccType})
-            conn.happyclick.VaccineData.update_one({'date': vaccDate, 'vaccine_type': vaccType},
-                                                   {'$set': {
-                                                       "reserve_amount": vaccineRecord['reserve_amount'] - 1}},
-                                                   upsert=False)
-            return jsonify({'msg': 'Reservation removed successfully!'})
-        else:
-            return jsonify({'msg': 'No reservation found!'})
+        if session.get('ID'):
+            # get data from frontend json
+            data = request.get_json(force=True)
+            userId = data["ID"]
+            vaccDate = data["date"]
+            vaccType = data["vaccine_type"]
+            # send request to delete data in DB
+            reserveRecord = conn.happyclick.FormData.find_one(
+                {'ID': int(userId), 'date': vaccDate, 'vaccine_type': vaccType, 'status': False})
+            if reserveRecord:
+                print('\nFind one unvaccinated reserve!')
+                conn.happyclick.FormData.delete_one(
+                    {'ID': userId, 'date': vaccDate, 'vaccine_type': vaccType})
+                # update reserve amount
+                vaccineRecord = conn.happyclick.VaccineData.find_one(
+                    {'date': vaccDate, 'vaccine_type': vaccType})
+                conn.happyclick.VaccineData.update_one({'date': vaccDate, 'vaccine_type': vaccType},
+                                                    {'$set': {
+                                                        "reserve_amount": vaccineRecord['reserve_amount'] - 1}},
+                                                    upsert=False)
+                return jsonify({'msg': 'Reservation removed successfully!'})
+            else:
+                return jsonify({'msg': 'No reservation found!'})
 
 
 class ReturnAvailable(Resource):
@@ -281,18 +267,19 @@ class ReturnAvailable(Resource):
             returnList.append(vaccineDict)
         return jsonify(returnList)
 
-
-@login_required
 @app.route('/logout')
 def logout():
-    logout_user()
-    return jsonify({'msg': 'Logged out successfully!'})
+    if session.get('ID'):
+        # delete session
+        session['ID'] = False
+        return jsonify({'msg': 'Logged out successfully!'})
+    else:
+        return jsonify({'msg': 'Not login yet!'})
 
 
 api.add_resource(login, "/login")
 api.add_resource(find_employees_under_staff, "/find_employees_under_staff")
 api.add_resource(UpdateVaccinated, '/updateVaccinated')
-api.add_resource(UpdateVaccine, '/updateVaccine')
 api.add_resource(SearchFormData, '/searchFormdata')
 api.add_resource(SaveReserve,  '/saveReserve')
 api.add_resource(CheckReserve,  '/checkReserve')
