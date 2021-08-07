@@ -58,7 +58,20 @@
 - Input : 無
 - Output : 
 
-
+# Health center API
+### SearchFormData 查詢預約接種名單 (POST)
+- Input : 
+    - date (string, ex. {"date":"2021/08/12"})
+- Output : 
+    - 有資料 
+        - list[{form_id(integer), vaccine_type(string), ID(integer), Name(string)}, .....]
+    - 沒資料 
+        - {'msg' : 'No FormData data!'}
+### UpdateVaccinated 上傳接種資料 (POST)
+- Input : 
+    - {form_id(integer), ID(integer), Name(string)}
+- Output : 
+    - {'msg' : 'Update Vaccinated successful!'}
 
 
 # Reserve API
