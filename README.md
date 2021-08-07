@@ -1,6 +1,8 @@
 
 # HappyClickService
 安裝方式： pip install -r requirement.txt
+server on heroku
+- url : https://happyclick-healthcenter.herokuapp.com/{api_url}
 # Database Architecture
 
 ## UserData
