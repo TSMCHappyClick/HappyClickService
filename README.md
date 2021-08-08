@@ -1,6 +1,6 @@
 
 # HappyClickService
-安裝方式： pip install -r requirement.txt
+安裝方式： pip install -r requirement.txt <br>
 server on heroku
 - url : https://happyclick-healthcenter.herokuapp.com/{api_url}
 # Database Architecture
@@ -71,11 +71,18 @@ server on heroku
         - list[{form_id(integer), vaccine_type(string), ID(integer), Name(string)}, .....]
     - 沒資料 
         - {'msg' : 'No FormData data!'}
+
 ### UpdateVaccinated 上傳接種資料 ./updateVaccinated (POST) -- login required
 - Input : 
     - {form_id(integer), ID(integer), Name(string)}
 - Output : 
     - {'msg' : 'Update Vaccinated successful!'}
+
+### UpdateVaccine 上傳疫苗資料 ./updateVaccine (POST) -- login required
+- Input : 
+    - {vaccine_amount(string), date(string), vaccine_type(string)}
+- Output : 
+    - {'msg' : 'Update Vaccine successful!'}
 
 
 # Reserve API
