@@ -50,13 +50,14 @@ server on heroku
     - 如果沒登入{'msg':'not login yet!'}
 
 
-# 疫苗使用率狀況 API. (dashboard頁面直接顯示出以下三個）
-## 科學園區施打率 -- login required
+# 疫苗使用率狀況 API. (dashboard頁面直接顯示出以下三個
+# 統一get參數 ?id=xxx
+## find_division_shot_rate 科學園區施打率 -- login required
 - Input : 無
 - Output : 
     - {'竹科': xx, '中科': xx, '南科': xx, '中國': xx, '美國': xx, '新加坡': xx, '龍潭封測廠': xx} (xx：施打率，以float表示）
 
-## 各廠區施打率   -- login required
+## find_fac_shot_rate 各廠區施打率   -- login required
 - Input : 無
 
 - Output : 範例如下，一個list對應到另一個list
@@ -69,12 +70,12 @@ server on heroku
    
    [0.6666666666666666, 0.2, 0.625, 0.3333333333333333, 0.6, 1.0, 0.0, 0.25, 0.25, 0.625, 0.2857142857142857, 0.8, 0.625, 0.5, 0.25, 0.42857142857142855, 0.25, 0.16666666666666666, 0.0, 0.3333333333333333]}
 
-## 主管底下員工的施打狀況 find_employees_under_staff (GET) -- login required
+## find_employees_under_staff 主管底下員工的施打狀況 find_employees_under_staff (GET) -- login required
 - Input : 無
 - Output : 
     - {'shot': [XXX,...,XXX], 'not_shot': [XXX,XXX,XXX,...,XXX]}
 
-## 各種疫苗的施打率 -- login required
+## find_vaccine_shot_rate 各種疫苗的施打率 -- login required
 - Input : 無
 - Output : {'Moderna': a, 'AstraZeneca': b, 'BioNTech': c}. (a+b+c = 100)
 
