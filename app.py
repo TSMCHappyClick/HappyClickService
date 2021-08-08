@@ -41,7 +41,7 @@ def after_request(response):
 
 
 def check_user_existence(user_id):
-    user = list(conn.happyclick.UserData.find({"ID": user_id}))
+    user = list(conn.happyclick.UserData.find({"id": user_id}))
     if user == []:
         return False
     return True
@@ -71,7 +71,7 @@ class login(Resource):
     def post(self):
         data = request.get_json(force=True)
 
-        ID = int(data['ID'])
+        ID = int(data['id'])
         password_before_hash = data['password']
         password = return_hash(password_before_hash)
         print('ID:{},password:{}'.format(ID, password))
@@ -80,7 +80,7 @@ class login(Resource):
         if not user_exist:
             return jsonify({'identity': 'No user to be found!'})
         else:
-            user = list(conn.happyclick.UserData.find({"ID": ID}))
+            user = list(conn.happyclick.UserData.find({"id": ID}))
             if password == user[0]['password']:
 
                 curr_user = User()
@@ -109,14 +109,14 @@ class find_employees_under_staff(Resource):
     def get(self):
         # if session.get('ID'):
         userId = request.args.get('id', type=str)
-        staffs = list(conn.happyclick.StaffData.find({'ID': int(userId)}))
+        staffs = list(conn.happyclick.StaffData.find({'id': int(userId)}))
         result = {'shot': [], 'not_shot': []}
 
         for employeeID in staffs[0]['employees']:
             employee = list(conn.happyclick.VaccinatedData.find(
-                {'ID': int(employeeID)}))
+                {'id': int(employeeID)}))
             if employee:
-                result['shot'].append(employee[0]['ID'])
+                result['shot'].append(employee[0]['id'])
             # 將其他沒注射的加進來
             else:
                 result['not_shot'].append(employeeID)
@@ -335,7 +335,7 @@ class find_division_shot_rate(Resource):
             }
 
             for worker_vaccined in Workers_vaccineds:
-                workers_vac = list(conn.happyclick.UserData.find({'ID': worker_vaccined['ID'] }))
+                workers_vac = list(conn.happyclick.UserData.find({'id': worker_vaccined['id'] }))
                 if len(workers_vac) == 1 :
                     for key, value in divisions.items():
                         for i in range(len(value)):
