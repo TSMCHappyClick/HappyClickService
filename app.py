@@ -305,13 +305,13 @@ class UpdateVaccine(Resource):
 
 def calculation(json_result):
     json_after_cal = {
+        "龍潭封測廠":0,
         "竹科":0,
         "中科":0,
         "南科":0,
         "中國":0,
         "美國":0,
-        "新加坡":0,
-        "龍潭封測廠":0
+        "新加坡":0
     }
     for key, values in json_result.items():
         json_after_cal[key] = values[0] / values[1]
@@ -320,40 +320,40 @@ def calculation(json_result):
 
 class find_division_shot_rate(Resource):
     def get(self):
-        if session.get('ID'):
-            workers = list(conn.happyclick.UserData.find({}))
-            Workers_vaccineds = list(conn.happyclick.VaccinatedData.find({}))
-            divisions = db.get_divisions()
-            result = {
-                "竹科":[0,0],
-                "中科":[0,0],
-                "南科":[0,0],
-                "中國":[0,0],
-                "美國":[0,0],
-                "新加坡":[0,0],
-                "龍潭封測廠":[0,0]
-            }
+        # if session.get('ID'):
+        workers = list(conn.happyclick.UserData.find({}))
+        Workers_vaccineds = list(conn.happyclick.VaccinatedData.find({}))
+        divisions = db.get_divisions()
+        result = {
+            "龍潭封測廠":[0,0],
+            "竹科":[0,0],
+            "中科":[0,0],
+            "南科":[0,0],
+            "中國":[0,0],
+            "美國":[0,0],
+            "新加坡":[0,0]
+        }
 
-            for worker_vaccined in Workers_vaccineds:
-                workers_vac = list(conn.happyclick.UserData.find({'id': worker_vaccined['id'] }))
-                if len(workers_vac) == 1 :
-                    for key, value in divisions.items():
-                        for i in range(len(value)):
-                            if value[i] == workers_vac[0]['division']:
-                                result[key][0] += 1
+        for worker_vaccined in Workers_vaccineds:
+            workers_vac = list(conn.happyclick.UserData.find({'id': worker_vaccined['id'] }))
+            if len(workers_vac) == 1 :
+                for key, value in divisions.items():
+                    for i in range(len(value)):
+                        if value[i] == workers_vac[0]['division']:
+                            result[key][0] += 1
 
 
-            for key, value in divisions.items():
-                for i in range(len(value)):
-                    for worker in workers:
-                        if value[i] == worker['division']:
-                            result[key][1] += 1
-            
-            print(result)
-            result = calculation(result)
-            return result
-        else:
-            return jsonify({'msg':'not login yet!'})
+        for key, value in divisions.items():
+            for i in range(len(value)):
+                for worker in workers:
+                    if value[i] == worker['division']:
+                        result[key][1] += 1
+        
+        print(result)
+        result = calculation(result)
+        return result
+        # else:
+        #     return jsonify({'msg':'not login yet!'})
 
 class find_vaccine_shot_rate(Resource):
     def get(self):
@@ -378,6 +378,44 @@ class find_vaccine_shot_rate(Resource):
 
         return result
 
+
+class find_fac_shot_rate(Resource):
+    def get(self):
+        factorys = db.get_factorys()
+        fac_list=[]
+        fac_shot=[0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0]
+        fac_all=[0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0]
+        fac_shot_rate=[]
+        result = {   
+            'factorys':[],
+            'rate':[]
+        }
+
+        for factory in factorys:
+            fac_list.append(factorys[factory])
+        
+        users = list(conn.happyclick.UserData.find({}))
+        for user in users:
+            user_vac = list(conn.happyclick.VaccinatedData.find({'id': user['id'] }))
+            if len(user_vac) == 1 :
+                for i in range(len(fac_list)):
+                    if fac_list[i] == factorys[user['division']]:
+                        fac_shot[i] += 1
+                        fac_all[i] += 1
+            else:
+                for i in range(len(fac_list)):
+                    if fac_list[i] == factorys[user['division']]:
+                        fac_all[i] += 1
+                        
+        for i in range(len(fac_list)):
+            rate = fac_shot[i] / fac_all[i]
+            fac_shot_rate.append(rate)
+        
+        result['factorys'] = fac_list
+        result['rate'] = fac_shot_rate
+
+        return result
+
 @app.route('/logout')
 def logout():
     if session.get('ID'):
@@ -392,6 +430,7 @@ api.add_resource(login, "/login")
 api.add_resource(find_employees_under_staff, "/find_employees_under_staff")
 api.add_resource(find_division_shot_rate, "/find_division_shot_rate")
 api.add_resource(find_vaccine_shot_rate, "/find_vaccine_shot_rate")
+api.add_resource(find_fac_shot_rate, "/find_fac_shot_rate")
 api.add_resource(UpdateVaccinated, '/updateVaccinated')
 api.add_resource(SearchFormData, '/searchFormdata')
 api.add_resource(SaveReserve,  '/saveReserve')
