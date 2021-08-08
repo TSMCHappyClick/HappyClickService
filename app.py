@@ -74,7 +74,7 @@ class login(Resource):
         ID = int(data['id'])
         password_before_hash = data['password']
         password = return_hash(password_before_hash)
-        print('ID:{},password:{}'.format(ID, password))
+        print('id:{},password:{}'.format(ID, password))
 
         user_exist = check_user_existence(ID)
         if not user_exist:
@@ -136,11 +136,11 @@ class UpdateVaccinated(Resource):
             conn.happyclick.FormData.update_one(
                 {"form_id": int(vaccinated_data["form_id"])}, {"$set": {"status": True}})
             db_vaccinated_data = conn.happyclick.VaccinatedData.find_one(
-                {"ID": int(vaccinated_data["ID"])})
+                {"id": int(vaccinated_data["id"])})
             if db_vaccinated_data is None:
                 conn.happyclick.VaccinatedData.insert(
-                    {"ID": vaccinated_data["ID"], "Name": vaccinated_data["Name"], "vaccinated_times": 0})
-            conn.happyclick.VaccinatedData.update({"ID": vaccinated_data["ID"]}, {
+                    {"id": vaccinated_data["id"], "username": vaccinated_data["username"], "vaccinated_times": 0})
+            conn.happyclick.VaccinatedData.update({"id": vaccinated_data["id"]}, {
                                                 "$inc": {"vaccinated_times": 1}})
             return jsonify({'msg': 'Update Vaccinated successful!'})
         else:
@@ -156,8 +156,8 @@ class SearchFormData(Resource):
             for data in datas_from_db:
                 formData_dict = {"form_id": data["form_id"],
                                 'vaccine_type': data['vaccine_type'],
-                                'ID': data['ID'],
-                                "Name": str(data["Name"])}
+                                'id': data['id'],
+                                "username": str(data["username"])}
                 datas_to_front.append(formData_dict)
 
             if len(datas_to_front) == 0:
@@ -190,19 +190,18 @@ class SaveReserve(Resource):
             largestFormId = conn.happyclick.FormData.find_one(
                 sort=[("form_id", pymongo.DESCENDING)])
             formId_max = largestFormId['form_id']
-            # print("\nCurrent form ID: " + str(formId_max))
 
             # implement json file request send to DB
             formId = formId_max + 1
-            userId =    data["ID"]
-            username =  data["Name"]
+            userId =    data["id"]
+            username =  data["username"]
             vaccDate =  data["date"]
             vaccType =  data["vaccine_type"]
 
             if (checkVaccineAmount(vaccDate, vaccType)):
                 # add data to DB
-                conn.happyclick.FormData.insert_one({'form_id': formId, 'ID': int(userId),
-                                                    'Name': username, 'vaccine_type': vaccType, 'date': vaccDate, 'status': False})
+                conn.happyclick.FormData.insert_one({'form_id': formId, 'id': int(userId),
+                                                    'username': username, 'vaccine_type': vaccType, 'date': vaccDate, 'status': False})
                 # update reserve amount
                 vaccineRecord = conn.happyclick.VaccineData.find_one(
                     {'date': vaccDate, 'vaccine_type': vaccType})
@@ -223,7 +222,7 @@ class CheckReserve(Resource):
         if session.get('ID'):
             userId = request.args.get('id', default="999999", type=str)
             reserveRecord = conn.happyclick.FormData.find_one(
-                {'ID': int(userId), 'status': False})  # prevend DB from query vaccinated record
+                {'id': int(userId), 'status': False})  # prevend DB from query vaccinated record
             if reserveRecord:
                 print('\nFind one unvaccinated reserve!')
                 vaccine_type = reserveRecord['vaccine_type']
@@ -240,16 +239,16 @@ class RemoveReserve(Resource):
         if session.get('ID'):
             # get data from frontend json
             data = request.get_json(force=True)
-            userId = data["ID"]
+            userId = data["id"]
             vaccDate = data["date"]
             vaccType = data["vaccine_type"]
             # send request to delete data in DB
             reserveRecord = conn.happyclick.FormData.find_one(
-                {'ID': int(userId), 'date': vaccDate, 'vaccine_type': vaccType, 'status': False})
+                {'id': int(userId), 'date': vaccDate, 'vaccine_type': vaccType, 'status': False})
             if reserveRecord:
                 print('\nFind one unvaccinated reserve!')
                 conn.happyclick.FormData.delete_one(
-                    {'ID': int(userId), 'date': vaccDate, 'vaccine_type': vaccType})
+                    {'id': int(userId), 'date': vaccDate, 'vaccine_type': vaccType})
                 # update reserve amount
                 vaccineRecord = conn.happyclick.VaccineData.find_one(
                     {'date': vaccDate, 'vaccine_type': vaccType})
