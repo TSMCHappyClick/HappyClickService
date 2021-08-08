@@ -29,4 +29,4 @@ def get_divisions():
     return divisions
 
 
-meds = [111426, 120649, 120000]
+meds = [70523, 75088, 97493, 89384, 41195]
