@@ -149,7 +149,7 @@ class SearchFormData(Resource):
             datas_to_front = []
             date_data = request.args.get('date',  type=str)
             datas_from_db = conn.happyclick.FormData.find(
-                {"date": date_data["date"], "status": False})
+                {"date": date_data, "status": False})
             for data in datas_from_db:
                 formData_dict = {"form_id": data["form_id"],
                                 'vaccine_type': data['vaccine_type'],
