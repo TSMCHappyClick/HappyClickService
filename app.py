@@ -144,10 +144,10 @@ class UpdateVaccinated(Resource):
             return jsonify({'msg':'not login yet!'})
 
 class SearchFormData(Resource):
-    def post(self):
+    def get(self):
         if session.get('ID'):
             datas_to_front = []
-            date_data = request.get_json(force=True)
+            date_data = request.args.get('date',  type=str)
             datas_from_db = conn.happyclick.FormData.find(
                 {"date": date_data["date"], "status": False})
             for data in datas_from_db:
@@ -295,7 +295,7 @@ class UpdateVaccine(Resource):
                         "reserve_amount": 0,
                         "vaccine_amount": 0,
                         "vaccine_type": vaccine_data["vaccine_type"]})
-            for num in range(vaccine_data["vaccine_amount"]):
+            for num in range(int(vaccine_data["vaccine_amount"])):
                 conn.happyclick.VaccineData.update({"vaccine_type": vaccine_data["vaccine_type"], "date": vaccine_data["date"]}, {
                                                     "$inc": {"vaccine_amount": 1}})
             return jsonify({'msg': 'Update Vaccine successful!'})
