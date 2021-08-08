@@ -55,28 +55,13 @@ def return_hash(password):
 
     return password_sha1_data
 
-def calculation(json_result):
-    json_after_cal = {
-        "竹科":0,
-        "中科":0,
-        "南科":0,
-        "中國":0,
-        "美國":0,
-        "新加坡":0,
-        "龍潭封測廠":0
-    }
-    for key, values in json_result.items():
-        json_after_cal[key] = values[0] / values[1]
+@login_manager.user_loader
+def load_user(user_id):
+    if check_user_existence(user_id):
+        curr_user = User()
+        curr_user.id = user_id
 
-    return json_after_cal
-
-# @login_manager.user_loader
-# def load_user(user_id):
-#     if check_user_existence(user_id):
-#         curr_user = User()
-#         curr_user.id = user_id
-
-#         return curr_user
+        return curr_user
 
 
 class login(Resource):
@@ -98,8 +83,8 @@ class login(Resource):
             user = list(conn.happyclick.UserData.find({"ID": ID}))
             if password == user[0]['password']:
 
-                # curr_user = User()
-                # curr_user.id = ID
+                curr_user = User()
+                curr_user.id = ID
                 
                 session['ID'] = ID
 
@@ -262,7 +247,7 @@ class RemoveReserve(Resource):
             if reserveRecord:
                 print('\nFind one unvaccinated reserve!')
                 conn.happyclick.FormData.delete_one(
-                    {'ID': userId, 'date': vaccDate, 'vaccine_type': vaccType})
+                    {'ID': int(userId), 'date': vaccDate, 'vaccine_type': vaccType})
                 # update reserve amount
                 vaccineRecord = conn.happyclick.VaccineData.find_one(
                     {'date': vaccDate, 'vaccine_type': vaccType})
@@ -302,23 +287,36 @@ class UpdateVaccine(Resource):
             vaccine_id_dict = {"AZ": 1, "MD": 2, "BNT": 3}
             # get data from frontend json
             vaccine_data = request.get_json(force=True)
-            conn.happyclick.VaccineData.insert(
-                    {"vaccine_id": vaccine_id_dict[vaccine_data["vaccine_type"]], 
-                    "date": vaccine_data["date"], 
-                    "reserve_amount": 0,
-                    "vaccine_amount": vaccine_data["vaccine_amount"],
-                    "vaccine_type": vaccine_data["vaccine_type"]})
-            # db_vaccine_data = conn.happyclick.VaccinatedData.find_one(
-            #     {"vaccine_type": vaccine_data["vaccine_type"], "date": vaccine_data["date"]})
-            # if db_vaccine_data is None:
-            #     conn.happyclick.VaccinatedData.insert(
-            #         {"vaccine_id": vaccine_data["ID"], "Name": vaccine_data["Name"], "vaccine_data": 0})
-            # conn.happyclick.VaccinatedData.update({"vaccine_type": vaccine_data["vaccine_type"], "date": vaccine_data["date"]}, {
-            #                                       "$inc": {"vaccine_amount": 1}})
+            db_vaccine_data = conn.happyclick.VaccineData.find_one(
+                {"vaccine_type": vaccine_data["vaccine_type"], "date": vaccine_data["date"]})
+            if db_vaccine_data is None:
+                conn.happyclick.VaccineData.insert(
+                        {"vaccine_id": vaccine_id_dict[vaccine_data["vaccine_type"]], 
+                        "date": vaccine_data["date"], 
+                        "reserve_amount": 0,
+                        "vaccine_amount": 0,
+                        "vaccine_type": vaccine_data["vaccine_type"]})
+            for num in range(vaccine_data["vaccine_amount"]):
+                conn.happyclick.VaccineData.update({"vaccine_type": vaccine_data["vaccine_type"], "date": vaccine_data["date"]}, {
+                                                    "$inc": {"vaccine_amount": 1}})
             return jsonify({'msg': 'Update Vaccine successful!'})
         else:
             return jsonify({'msg':'not login yet!'})
 
+def calculation(json_result):
+    json_after_cal = {
+        "竹科":0,
+        "中科":0,
+        "南科":0,
+        "中國":0,
+        "美國":0,
+        "新加坡":0,
+        "龍潭封測廠":0
+    }
+    for key, values in json_result.items():
+        json_after_cal[key] = values[0] / values[1]
+
+    return json_after_cal
 
 class find_division_shot_rate(Resource):
     def get(self):
