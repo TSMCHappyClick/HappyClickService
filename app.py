@@ -55,7 +55,6 @@ def return_hash(password):
 
     return password_sha1_data
 
-
 @login_manager.user_loader
 def load_user(user_id):
     if check_user_existence(user_id):
@@ -90,7 +89,7 @@ class login(Resource):
                 session['ID'] = ID
 
                 # 通過Flask-Login的login_user方法登入使用者
-                login_user(curr_user)
+                # login_user(curr_user)
                 print('Succesfully login!')
                 # 查看是否是醫療人員
                 if ID in db.meds:
@@ -128,36 +127,41 @@ class find_employees_under_staff(Resource):
 
 class UpdateVaccinated(Resource):
     def post(self):
+        if session.get('ID'):
         # get data from frontend json
-        vaccinated_data = request.get_json(force=True)
-        conn.happyclick.FormData.update_one(
-            {"form_id": int(vaccinated_data["form_id"])}, {"$set": {"status": True}})
-        db_vaccinated_data = conn.happyclick.VaccinatedData.find_one(
-            {"ID": int(vaccinated_data["ID"])})
-        if db_vaccinated_data is None:
-            conn.happyclick.VaccinatedData.insert(
-                {"ID": vaccinated_data["ID"], "Name": vaccinated_data["Name"], "vaccinated_times": 0})
-        conn.happyclick.VaccinatedData.update({"ID": vaccinated_data["ID"]}, {
-                                              "$inc": {"vaccinated_times": 1}})
-        return jsonify({'msg': 'Update Vaccinated successful!'})
-
+            vaccinated_data = request.get_json(force=True)
+            conn.happyclick.FormData.update_one(
+                {"form_id": int(vaccinated_data["form_id"])}, {"$set": {"status": True}})
+            db_vaccinated_data = conn.happyclick.VaccinatedData.find_one(
+                {"ID": int(vaccinated_data["ID"])})
+            if db_vaccinated_data is None:
+                conn.happyclick.VaccinatedData.insert(
+                    {"ID": vaccinated_data["ID"], "Name": vaccinated_data["Name"], "vaccinated_times": 0})
+            conn.happyclick.VaccinatedData.update({"ID": vaccinated_data["ID"]}, {
+                                                "$inc": {"vaccinated_times": 1}})
+            return jsonify({'msg': 'Update Vaccinated successful!'})
+        else:
+            return jsonify({'msg':'not login yet!'})
 
 class SearchFormData(Resource):
     def post(self):
-        datas_to_front = []
-        date_data = request.get_json(force=True)
-        datas_from_db = conn.happyclick.FormData.find(
-            {"date": date_data["date"], "status": False})
-        for data in datas_from_db:
-            formData_dict = {"form_id": data["form_id"],
-                             'vaccine_type': data['vaccine_type'],
-                             'ID': data['ID'],
-                             "Name": str(data["Name"])}
-            datas_to_front.append(formData_dict)
+        if session.get('ID'):
+            datas_to_front = []
+            date_data = request.get_json(force=True)
+            datas_from_db = conn.happyclick.FormData.find(
+                {"date": date_data["date"], "status": False})
+            for data in datas_from_db:
+                formData_dict = {"form_id": data["form_id"],
+                                'vaccine_type': data['vaccine_type'],
+                                'ID': data['ID'],
+                                "Name": str(data["Name"])}
+                datas_to_front.append(formData_dict)
 
-        if len(datas_to_front) == 0:
-            return jsonify({'msg': 'No FormData data!'})
-        return jsonify(datas_to_front)
+            if len(datas_to_front) == 0:
+                return jsonify({'msg': 'No FormData data!'})
+            return jsonify(datas_to_front)
+        else:
+            return jsonify({'msg':'not login yet!'})
 
 
 def checkVaccineAmount(vaccDate, vaccType):
@@ -207,13 +211,14 @@ class SaveReserve(Resource):
                 return jsonify({'msg': 'Reservation of vaccine successful!'})
             else:
                 return jsonify({'msg': 'Reservation chosen is full!'})
+        else:
+            return jsonify({'msg':'not login yet!'})
 
 
 class CheckReserve(Resource):
-    def post(self):
+    def get(self):
         if session.get('ID'):
-            data = request.get_json(force=True)
-            userId = data["ID"]
+            userId = request.args.get('id', default=999999, type=int)
             reserveRecord = conn.happyclick.FormData.find_one(
                 {'ID': int(userId), 'status': False})  # prevend DB from query vaccinated record
             if reserveRecord:
@@ -223,6 +228,8 @@ class CheckReserve(Resource):
                 return jsonify({'msg': 'Check reserve successful!', 'vaccine_type': vaccine_type, 'date': vaccine_date})
             else:
                 return jsonify({'msg': 'No reservation found!'})
+        else:
+            return jsonify({'msg':'not login yet!'})
 
 
 class RemoveReserve(Resource):
@@ -239,7 +246,7 @@ class RemoveReserve(Resource):
             if reserveRecord:
                 print('\nFind one unvaccinated reserve!')
                 conn.happyclick.FormData.delete_one(
-                    {'ID': userId, 'date': vaccDate, 'vaccine_type': vaccType})
+                    {'ID': int(userId), 'date': vaccDate, 'vaccine_type': vaccType})
                 # update reserve amount
                 vaccineRecord = conn.happyclick.VaccineData.find_one(
                     {'date': vaccDate, 'vaccine_type': vaccType})
@@ -250,22 +257,103 @@ class RemoveReserve(Resource):
                 return jsonify({'msg': 'Reservation removed successfully!'})
             else:
                 return jsonify({'msg': 'No reservation found!'})
+        else:
+            return jsonify({'msg':'not login yet!'})
 
 
 class ReturnAvailable(Resource):
     def get(self):
-        # query DB for all vaccine record, and remove those are full
-        vaccineAvailable = conn.happyclick.VaccineData.find({})
-        availableList = [
-            x for x in vaccineAvailable if x['vaccine_amount'] > x['reserve_amount']]
-        # implement json file of remaining vaccine for frontend
-        returnList = []
-        for i in availableList:
-            vaccineDict = {'date': i['date'],
-                           'vaccine_type': i['vaccine_type'],
-                           'vaccine_remaining': i['vaccine_amount'] - i['reserve_amount']}
-            returnList.append(vaccineDict)
-        return jsonify(returnList)
+        print(session.get('ID'))
+        if session.get('ID'):
+            # query DB for all vaccine record, and remove those are full
+            
+            vaccineAvailable = conn.happyclick.VaccineData.find({})
+            availableList = [x for x in vaccineAvailable if x['vaccine_amount'] > x['reserve_amount']]
+            # implement json file of remaining vaccine for frontend
+            returnList = []
+            for i in availableList:
+                vaccineDict = {'date': i['date'],
+                            'vaccine_type': i['vaccine_type'],
+                            'vaccine_remaining': i['vaccine_amount'] - i['reserve_amount']}
+                returnList.append(vaccineDict)
+            return jsonify(returnList)
+        else:
+            return jsonify({'msg':'not login yet!'})
+
+class UpdateVaccine(Resource):
+    def post(self):
+        if session.get('ID'):
+            vaccine_id_dict = {"AstraZeneca": 1, "Moderna": 2, "BioNTech": 3}
+            # get data from frontend json
+            vaccine_data = request.get_json(force=True)
+            db_vaccine_data = conn.happyclick.VaccineData.find_one(
+                {"vaccine_type": vaccine_data["vaccine_type"], "date": vaccine_data["date"]})
+            if db_vaccine_data is None:
+                conn.happyclick.VaccineData.insert(
+                        {"vaccine_id": vaccine_id_dict[vaccine_data["vaccine_type"]], 
+                        "date": vaccine_data["date"], 
+                        "reserve_amount": 0,
+                        "vaccine_amount": 0,
+                        "vaccine_type": vaccine_data["vaccine_type"]})
+            for num in range(vaccine_data["vaccine_amount"]):
+                conn.happyclick.VaccineData.update({"vaccine_type": vaccine_data["vaccine_type"], "date": vaccine_data["date"]}, {
+                                                    "$inc": {"vaccine_amount": 1}})
+            return jsonify({'msg': 'Update Vaccine successful!'})
+        else:
+            return jsonify({'msg':'not login yet!'})
+
+def calculation(json_result):
+    json_after_cal = {
+        "竹科":0,
+        "中科":0,
+        "南科":0,
+        "中國":0,
+        "美國":0,
+        "新加坡":0,
+        "龍潭封測廠":0
+    }
+    for key, values in json_result.items():
+        json_after_cal[key] = values[0] / values[1]
+
+    return json_after_cal
+
+class find_division_shot_rate(Resource):
+    def get(self):
+        if session.get('ID'):
+            workers = list(conn.happyclick.UserData.find({}))
+            Workers_vaccineds = list(conn.happyclick.VaccinatedData.find({}))
+            divisions = db.get_divisions()
+            result = {
+                "竹科":[0,0],
+                "中科":[0,0],
+                "南科":[0,0],
+                "中國":[0,0],
+                "美國":[0,0],
+                "新加坡":[0,0],
+                "龍潭封測廠":[0,0]
+            }
+
+            for worker_vaccined in Workers_vaccineds:
+                workers_vac = list(conn.happyclick.UserData.find({'ID': worker_vaccined['ID'] }))
+                if len(workers_vac) == 1 :
+                    for key, value in divisions.items():
+                        for i in range(len(value)):
+                            if value[i] == workers_vac[0]['division']:
+                                result[key][0] += 1
+
+
+            for key, value in divisions.items():
+                for i in range(len(value)):
+                    for worker in workers:
+                        if value[i] == worker['division']:
+                            result[key][1] += 1
+            
+            print(result)
+            result = calculation(result)
+            return result
+        else:
+            return jsonify({'msg':'not login yet!'})
+
 
 @app.route('/logout')
 def logout():
@@ -279,12 +367,14 @@ def logout():
 
 api.add_resource(login, "/login")
 api.add_resource(find_employees_under_staff, "/find_employees_under_staff")
+api.add_resource(find_division_shot_rate, "/find_division_shot_rate")
 api.add_resource(UpdateVaccinated, '/updateVaccinated')
 api.add_resource(SearchFormData, '/searchFormdata')
 api.add_resource(SaveReserve,  '/saveReserve')
 api.add_resource(CheckReserve,  '/checkReserve')
 api.add_resource(RemoveReserve,  '/removeReserve')
 api.add_resource(ReturnAvailable, "/returnAvailable")
+api.add_resource(UpdateVaccine, '/updateVaccine')
 
 if __name__ == '__main__':
     app.run(host="localhost", port=8088, threaded=True, debug=True)
