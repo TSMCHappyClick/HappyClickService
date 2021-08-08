@@ -17,11 +17,11 @@ server on heroku
     ID = 工號 (integer)
     Name = 預約的使用者 (string)
     vaccine_type = 預約的疫苗類別 (string)
-    date = 預約的接種日期 (string, ex. 2021/08/02)
+    date = 預約的接種日期 (string, ex. 2021-08-02)
     status = 是否接種(boolean, 預設false)
 ## VaccineData
     vaccine_id = 疫苗id (integer)
-    date = 日期 (string, ex. 2021/08/02)
+    date = 日期 (string, ex. 2021-08-02)
     vaccine_type = 疫苗類別 (string)
     vaccine_amount = 疫苗存量 (integer)
     reserve_amount = 預約數量 (integer)
@@ -65,7 +65,7 @@ server on heroku
 # Health center API
 ### SearchFormData 查詢預約接種名單 ./searchFormdata (POST) -- login required
 - Input : 
-    - date (string, ex. {"date":"2021/08/12"})
+    - date (string, ex. {"date":"2021-08-12"})
 - Output : 
     - 有資料 
         - list[{form_id(integer), vaccine_type(string), ID(integer), Name(string)}, .....]
