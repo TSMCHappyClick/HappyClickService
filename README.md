@@ -42,7 +42,7 @@ server on heroku
       - 是醫護人員：{'identity':'med'}
       - 不是醫護人員：{'identity':'employee'}
     - 登入失敗：{'identity':'Wrong id or password!'}
-### logout (GET)
+### logout (GET) -- login required
 - Input : 無
 - Output : 
     - 如果有登入{'msg':'Logged out successfully!'}
@@ -53,7 +53,7 @@ server on heroku
 ### 廠區施打率
 - Input : 無
 - Output : 
-## 主管底下員工的施打狀況 find_employees_under_staff (GET)
+## 主管底下員工的施打狀況 find_employees_under_staff (GET) -- login required
 - Input : 無
 - Output : 
     - {'shot': [XXX,...,XXX], 'not_shot': [XXX,XXX,XXX,...,XXX]}
@@ -63,7 +63,7 @@ server on heroku
 - Output : 
 
 # Health center API
-### SearchFormData 查詢預約接種名單 ./searchFormdata (POST)
+### SearchFormData 查詢預約接種名單 ./searchFormdata (POST) -- login required
 - Input : 
     - date (string, ex. {"date":"2021/08/12"})
 - Output : 
@@ -71,7 +71,7 @@ server on heroku
         - list[{form_id(integer), vaccine_type(string), ID(integer), Name(string)}, .....]
     - 沒資料 
         - {'msg' : 'No FormData data!'}
-### UpdateVaccinated 上傳接種資料 ./updateVaccinated (POST)
+### UpdateVaccinated 上傳接種資料 ./updateVaccinated (POST) -- login required
 - Input : 
     - {form_id(integer), ID(integer), Name(string)}
 - Output : 
@@ -80,7 +80,7 @@ server on heroku
 
 # Reserve API
 
-### 新增預約 (SaveReserve) : ./saveReserve  (POST)
+### 新增預約 (SaveReserve) : ./saveReserve  (POST) -- login required
 - Input : 
     - ID   	   (string)
     - Name 	   (string)
@@ -93,7 +93,7 @@ server on heroku
     	- msg (string)
 
 
-### 查詢紀錄 (CheckReserve) : ./checkReserve  (POST)
+### 查詢紀錄 (CheckReserve) : ./checkReserve  (POST) -- login required
 - Input : 
     - ID (string)
 - Output : 
@@ -104,7 +104,7 @@ server on heroku
 	- 沒查到 --> 
 	    - msg (string)
 
-### 刪除預約 (RemoveReserve) : ./removeReserve  (POST)
+### 刪除預約 (RemoveReserve) : ./removeReserve  (POST) -- login required
 - Input : 
     - ID (integer)
     - date (string)
@@ -115,7 +115,7 @@ server on heroku
 	- 沒查到 -->
 	    - msg (string)
 
-### 回傳可預約時段 (ReturnAvailable) : ./returnAvailable  (GET)
+### 回傳可預約時段 (ReturnAvailable) : ./returnAvailable  (GET) -- login required
 - Call : 
 	- 可預約 --> 
 	    - List of {
