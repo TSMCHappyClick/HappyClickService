@@ -101,9 +101,10 @@ server on heroku
     	- msg (string)
 
 
-### 查詢紀錄 (CheckReserve) : ./checkReserve  (POST) -- login required
+### 查詢紀錄 (CheckReserve) : ./checkReserve  (GET) -- login required
 - Input : 
-    - ID (string)
+    - ./checkReserve?id=******
+    - id (integer)
 - Output : 
 	- 有查到 --> 
     	- msg (string)
