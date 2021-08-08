@@ -61,7 +61,7 @@ server on heroku
     - 如果沒登入{'msg':'not login yet!'}
 ### 各種疫苗的施打率
 - Input : 無
-- Output : 
+- Output : {'Moderna': a, 'AstraZeneca': b, 'BioNTech': c}. (a+b+c = 100)
 
 # Health center API
 ### SearchFormData 查詢預約接種名單 ./searchFormdata (POST) -- login required
