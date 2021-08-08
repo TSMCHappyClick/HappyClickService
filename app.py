@@ -248,7 +248,7 @@ class RemoveReserve(Resource):
             if reserveRecord:
                 print('\nFind one unvaccinated reserve!')
                 conn.happyclick.FormData.delete_one(
-                    {'ID': userId, 'date': vaccDate, 'vaccine_type': vaccType})
+                    {'ID': int(userId), 'date': vaccDate, 'vaccine_type': vaccType})
                 # update reserve amount
                 vaccineRecord = conn.happyclick.VaccineData.find_one(
                     {'date': vaccDate, 'vaccine_type': vaccType})
