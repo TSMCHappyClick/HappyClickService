@@ -284,7 +284,7 @@ class ReturnAvailable(Resource):
 class UpdateVaccine(Resource):
     def post(self):
         if session.get('ID'):
-            vaccine_id_dict = {"AZ": 1, "MD": 2, "BNT": 3}
+            vaccine_id_dict = {"AstraZeneca": 1, "Moderna": 2, "BioNTech": 3}
             # get data from frontend json
             vaccine_data = request.get_json(force=True)
             db_vaccine_data = conn.happyclick.VaccineData.find_one(
