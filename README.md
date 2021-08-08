@@ -53,6 +53,7 @@ server on heroku
 ### 廠區施打率
 - Input : 無
 - Output : 
+    - {'竹科': xx, '中科': xx, '南科': xx, '中國': xx, '美國': xx, '新加坡': xx, '龍潭封測廠': xx} (xx：施打率，以float表示）
 ## 主管底下員工的施打狀況 find_employees_under_staff (GET) -- login required
 - Input : 無
 - Output : 
