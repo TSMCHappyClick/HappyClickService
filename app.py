@@ -94,10 +94,12 @@ class login(Resource):
                 # 查看是否是醫療人員
                 if ID in db.meds:
                     return jsonify({
-                        'identity': 'med'
+                        'identity': 'med',
+                        'username': user[0]['username']
                     })
                 return jsonify({
-                    'identity': 'employee'
+                    'identity': 'employee',
+                    'username': user[0]['username']
                 })
 
             print('Login fail!')
