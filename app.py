@@ -108,7 +108,7 @@ class login(Resource):
 class find_employees_under_staff(Resource):
     def get(self):
         # if session.get('ID'):
-        userId = request.args.get('ID', type=str)
+        userId = request.args.get('id', type=str)
         staffs = list(conn.happyclick.StaffData.find({'ID': int(userId)}))
         result = {'shot': [], 'not_shot': []}
 
