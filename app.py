@@ -216,10 +216,9 @@ class SaveReserve(Resource):
 
 
 class CheckReserve(Resource):
-    def post(self):
+    def get(self):
         if session.get('ID'):
-            data = request.get_json(force=True)
-            userId = data["ID"]
+            userId = request.args.get('id', default=999999, type=int)
             reserveRecord = conn.happyclick.FormData.find_one(
                 {'ID': int(userId), 'status': False})  # prevend DB from query vaccinated record
             if reserveRecord:
