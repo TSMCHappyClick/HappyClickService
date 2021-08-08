@@ -355,8 +355,28 @@ class find_division_shot_rate(Resource):
         else:
             return jsonify({'msg':'not login yet!'})
 
-# class vaccine_shot_rate(Resource):
+class find_vaccine_shot_rate(Resource):
+    def get(self):
+        vac_list = ['Moderna','AstraZeneca','BioNTech']
+        vac_num = [0,0,0]
+        result = {
+            'Moderna':0,
+            'AstraZeneca':0,
+            'BioNTech':0
 
+        }
+        vacs = list(conn.happyclick.FormData.find({}))
+
+        for vac in vacs:
+            for i in range(len(vac_list)):
+                if vac['vaccine_type'] == vac_list[i]:
+                    vac_num[i] += 1
+        all_vac = sum(vac_num)
+        result['Moderna'] = vac_num[0] / all_vac
+        result['AstraZeneca'] = vac_num[1] / all_vac
+        result['BioNTech'] = vac_num[2] / all_vac
+
+        return result
 
 @app.route('/logout')
 def logout():
@@ -371,6 +391,7 @@ def logout():
 api.add_resource(login, "/login")
 api.add_resource(find_employees_under_staff, "/find_employees_under_staff")
 api.add_resource(find_division_shot_rate, "/find_division_shot_rate")
+api.add_resource(find_vaccine_shot_rate, "/find_vaccine_shot_rate")
 api.add_resource(UpdateVaccinated, '/updateVaccinated')
 api.add_resource(SearchFormData, '/searchFormdata')
 api.add_resource(SaveReserve,  '/saveReserve')
