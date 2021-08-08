@@ -106,9 +106,10 @@ class login(Resource):
 
 # find staff 底下 employee 注射狀況
 class find_employees_under_staff(Resource):
-    def get(self, id):
+    def get(self):
         # if session.get('ID'):
-        staffs = list(conn.happyclick.StaffData.find({'ID': id}))
+        userId = request.args.get('ID', type=str)
+        staffs = list(conn.happyclick.StaffData.find({'ID': int(userId)}))
         result = {'shot': [], 'not_shot': []}
 
         for employeeID in staffs[0]['employees']:
@@ -354,6 +355,8 @@ class find_division_shot_rate(Resource):
         else:
             return jsonify({'msg':'not login yet!'})
 
+# class vaccine_shot_rate(Resource):
+
 
 @app.route('/logout')
 def logout():
@@ -366,7 +369,7 @@ def logout():
 
 
 api.add_resource(login, "/login")
-api.add_resource(find_employees_under_staff, "/find_employees_under_staff/<int:id>")
+api.add_resource(find_employees_under_staff, "/find_employees_under_staff")
 api.add_resource(find_division_shot_rate, "/find_division_shot_rate")
 api.add_resource(UpdateVaccinated, '/updateVaccinated')
 api.add_resource(SearchFormData, '/searchFormdata')
