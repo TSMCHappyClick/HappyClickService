@@ -55,7 +55,7 @@ server on heroku
 ### find_division_shot_rate 科學園區施打率 -- login required
 - Input : 無
 - Output : 
-    - {'竹科': xx, '中科': xx, '南科': xx, '中國': xx, '美國': xx, '新加坡': xx, '龍潭封測廠': xx} (xx：施打率，以float表示）
+    - {'龍潭封測廠': xx, '竹科': xx, '中科': xx, '南科': xx, '中國': xx, '美國': xx, '新加坡': xx} (xx：施打率，以float表示）
 
 ### find_fac_shot_rate 各廠區施打率   -- login required
 - Input : 無
@@ -77,7 +77,8 @@ server on heroku
 
 ### find_vaccine_shot_rate 各種疫苗的施打率 -- login required
 - Input : 無
-- Output : {'Moderna': a, 'AstraZeneca': b, 'BioNTech': c}. (a+b+c = 100)
+- Output : {'Moderna': a, 'AstraZeneca': b, 'BioNTech': c}. 
+	   (a,b,c 各為百分比數，且a+b+c = 100)
 
 # Health center API
 ### SearchFormData 查詢預約接種名單 ./searchFormdata (POST) -- login required
