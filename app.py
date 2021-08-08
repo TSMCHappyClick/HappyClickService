@@ -55,14 +55,28 @@ def return_hash(password):
 
     return password_sha1_data
 
+def calculation(json_result):
+    json_after_cal = {
+        "竹科":0,
+        "中科":0,
+        "南科":0,
+        "中國":0,
+        "美國":0,
+        "新加坡":0,
+        "龍潭封測廠":0
+    }
+    for key, values in json_result.items():
+        json_after_cal[key] = values[0] / values[1]
 
-@login_manager.user_loader
-def load_user(user_id):
-    if check_user_existence(user_id):
-        curr_user = User()
-        curr_user.id = user_id
+    return json_after_cal
 
-        return curr_user
+# @login_manager.user_loader
+# def load_user(user_id):
+#     if check_user_existence(user_id):
+#         curr_user = User()
+#         curr_user.id = user_id
+
+#         return curr_user
 
 
 class login(Resource):
@@ -84,13 +98,13 @@ class login(Resource):
             user = list(conn.happyclick.UserData.find({"ID": ID}))
             if password == user[0]['password']:
 
-                curr_user = User()
-                curr_user.id = ID
+                # curr_user = User()
+                # curr_user.id = ID
                 
                 session['ID'] = ID
 
                 # 通過Flask-Login的login_user方法登入使用者
-                login_user(curr_user)
+                # login_user(curr_user)
                 print('Succesfully login!')
                 # 查看是否是醫療人員
                 if ID in db.meds:
@@ -265,6 +279,7 @@ class RemoveReserve(Resource):
 
 class ReturnAvailable(Resource):
     def get(self):
+        print(session.get('ID'))
         if session.get('ID'):
             # query DB for all vaccine record, and remove those are full
             
@@ -304,7 +319,45 @@ class UpdateVaccine(Resource):
         else:
             return jsonify({'msg':'not login yet!'})
 
+
+class find_division_shot_rate(Resource):
+    def get(self):
+        if session.get('ID'):
+            workers = list(conn.happyclick.UserData.find({}))
+            Workers_vaccineds = list(conn.happyclick.VaccinatedData.find({}))
+            divisions = db.get_divisions()
+            result = {
+                "竹科":[0,0],
+                "中科":[0,0],
+                "南科":[0,0],
+                "中國":[0,0],
+                "美國":[0,0],
+                "新加坡":[0,0],
+                "龍潭封測廠":[0,0]
+            }
+
+            for worker_vaccined in Workers_vaccineds:
+                workers_vac = list(conn.happyclick.UserData.find({'ID': worker_vaccined['ID'] }))
+                if len(workers_vac) == 1 :
+                    for key, value in divisions.items():
+                        for i in range(len(value)):
+                            if value[i] == workers_vac[0]['division']:
+                                result[key][0] += 1
+
+
+            for key, value in divisions.items():
+                for i in range(len(value)):
+                    for worker in workers:
+                        if value[i] == worker['division']:
+                            result[key][1] += 1
             
+            print(result)
+            result = calculation(result)
+            return result
+        else:
+            return jsonify({'msg':'not login yet!'})
+
+
 @app.route('/logout')
 def logout():
     if session.get('ID'):
@@ -317,6 +370,7 @@ def logout():
 
 api.add_resource(login, "/login")
 api.add_resource(find_employees_under_staff, "/find_employees_under_staff")
+api.add_resource(find_division_shot_rate, "/find_division_shot_rate")
 api.add_resource(UpdateVaccinated, '/updateVaccinated')
 api.add_resource(SearchFormData, '/searchFormdata')
 api.add_resource(SaveReserve,  '/saveReserve')
