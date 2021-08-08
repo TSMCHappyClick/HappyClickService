@@ -106,23 +106,23 @@ class login(Resource):
 
 # find staff 底下 employee 注射狀況
 class find_employees_under_staff(Resource):
-    def get(self):
-        if session.get('ID'):
-            staffs = list(conn.happyclick.StaffData.find({'ID': session.get('ID')}))
-            result = {'shot': [], 'not_shot': []}
+    def get(self, id):
+        # if session.get('ID'):
+        staffs = list(conn.happyclick.StaffData.find({'ID': id}))
+        result = {'shot': [], 'not_shot': []}
 
-            for employeeID in staffs[0]['employees']:
-                employee = list(conn.happyclick.VaccinatedData.find(
-                    {'ID': int(employeeID)}))
-                if employee:
-                    result['shot'].append(employee[0]['ID'])
-                # 將其他沒注射的加進來
-                else:
-                    result['not_shot'].append(employeeID)
+        for employeeID in staffs[0]['employees']:
+            employee = list(conn.happyclick.VaccinatedData.find(
+                {'ID': int(employeeID)}))
+            if employee:
+                result['shot'].append(employee[0]['ID'])
+            # 將其他沒注射的加進來
+            else:
+                result['not_shot'].append(employeeID)
 
-            return result
-        else:
-            return jsonify({'msg':'not login yet!'})
+        return result
+        # else:
+        #     return jsonify({'msg':'not login yet!'})
 
 
 class UpdateVaccinated(Resource):
@@ -366,7 +366,7 @@ def logout():
 
 
 api.add_resource(login, "/login")
-api.add_resource(find_employees_under_staff, "/find_employees_under_staff")
+api.add_resource(find_employees_under_staff, "/find_employees_under_staff/<int:id>")
 api.add_resource(find_division_shot_rate, "/find_division_shot_rate")
 api.add_resource(UpdateVaccinated, '/updateVaccinated')
 api.add_resource(SearchFormData, '/searchFormdata')
