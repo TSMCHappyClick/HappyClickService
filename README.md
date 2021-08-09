@@ -6,16 +6,16 @@ server on heroku
 # Database Architecture
 
 ## UserData
-    ID = 工號 (integer)
-    Name = 名字 (string)
+    id = 工號 (integer)
+    username = 名字 (string)
     password = 密碼 (hash)
     identity = 身分類別 (staff, employee, med) (string)
     division = 廠區 (string)
     email = 信箱 (string)
 ## FormData
     form_id = 表單id (integer)
-    ID = 工號 (integer)
-    Name = 預約的使用者 (string)
+    id = 工號 (integer)
+    username = 預約的使用者 (string)
     vaccine_type = 預約的疫苗類別 (string)
     date = 預約的接種日期 (string, ex. 2021-08-02)
     status = 是否接種(boolean, 預設false)
@@ -26,18 +26,18 @@ server on heroku
     vaccine_amount = 疫苗存量 (integer)
     reserve_amount = 預約數量 (integer)
 ## VaccinatedData
-    ID = 接種人工號 (integer)   
-    Name = 接種者名字 (string)
+    id = 接種人工號 (integer)   
+    username = 接種者名字 (string)
     vaccinated_times = 接種疫苗次數 (int)
 ## StaffData
-    ID = 主管工號 (integer)   
+    id = 主管工號 (integer)   
     employees = 下屬們的工號 [xxx,xxx,....,xxx]（integer）
     division = 主管所屬廠區（string）
    
 
 # 登入＆登出 API
 ### Login (POST)
-- Input : {'ID':int, 'password':string}
+- Input : {'id':int, 'password':string}
 - Output : 
     - 登入成功：
    
@@ -98,7 +98,7 @@ server on heroku
 
 ### UpdateVaccinated 上傳接種資料 ./updateVaccinated (POST) -- login required
 - Input : 
-    - {form_id(integer), ID(integer), Name(string)}
+    - {form_id(integer), id(string), username(string)}
 - Output : 
     - {'msg' : 'Update Vaccinated successful!'}
 
@@ -113,8 +113,8 @@ server on heroku
 
 ### 新增預約 (SaveReserve) : ./saveReserve  (POST) -- login required
 - Input : 
-    - ID   	   (string)
-    - Name 	   (string)
+    - id   	   (string)
+    - username 	   (string)
     - date 	   (string)
     - vaccine_type (string)
 - Output : 
@@ -127,7 +127,7 @@ server on heroku
 ### 查詢紀錄 (CheckReserve) : ./checkReserve  (GET) -- login required
 - Input : 
     - ./checkReserve?id=******
-    - id (integer)
+    - id (string)
 - Output : 
 	- 有查到 --> 
     	- msg (string)
@@ -138,7 +138,7 @@ server on heroku
 
 ### 刪除預約 (RemoveReserve) : ./removeReserve  (POST) -- login required
 - Input : 
-    - ID (integer)
+    - id (string)
     - date (string)
     - vaccine_type (string)
 - Output : 
