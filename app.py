@@ -325,13 +325,13 @@ class find_division_shot_rate(Resource):
         Workers_vaccineds = list(conn.happyclick.VaccinatedData.find({}))
         divisions = db.get_divisions()
         result = {
-            "龍潭封測廠":[0,0],
-            "竹科":[0,0],
-            "中科":[0,0],
-            "南科":[0,0],
-            "中國":[0,0],
-            "美國":[0,0],
-            "新加坡":[0,0]
+            "龍潭封測廠":[0,1],
+            "竹科":[0,1],
+            "中科":[0,1],
+            "南科":[0,1],
+            "中國":[0,1],
+            "美國":[0,1],
+            "新加坡":[0,1]
         }
 
         for worker_vaccined in Workers_vaccineds:
@@ -384,7 +384,7 @@ class find_fac_shot_rate(Resource):
         factorys = db.get_factorys()
         fac_list=[]
         fac_shot=[0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0]
-        fac_all=[0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0]
+        fac_all=[1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1]
         fac_shot_rate=[]
         result = {   
             'factorys':[],
