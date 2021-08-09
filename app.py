@@ -20,6 +20,13 @@ conn = db.connection()
 # Set up session's secret key (for 加密)
 app.config['SECRET_KEY'] = os.urandom(24)
 
+# 更改ap config, 解決samesite問題
+app.config.update(
+    SESSION_COOKIE_SECURE=True,
+    SESSION_COOKIE_HTTPONLY=True,
+    SESSION_COOKIE_SAMESITE='None',
+)
+
 # Bundle flask and flask-login together
 login_manager = LoginManager()
 login_manager.init_app(app)
@@ -33,10 +40,14 @@ class User(UserMixin):
 
 @app.after_request
 def after_request(response):
-    response.headers.add('Access-Control-Allow-Origin', '*')
+    response.headers.add('Access-Control-Allow-Origin', 'https://happy-click-gui.herokuapp.com')
     response.headers.add('Access-Control-Allow-Headers',
-                         'Content-Type,Authorization')
-    response.headers.add('Access-Control-Allow-Methods', 'GET,PUT,POST,DELETE')
+                        'Access-Control-Allow-Headers, Access-Control-Allow-Origin, Origin, Accept, '
+                        'X-Requested-With, Content-Type, '
+                        'Access-Control-Request-Method, Access-Control-Request-Headers')
+    response.headers.add('Access-Control-Allow-Credentials', 'true')
+    response.headers.add('Access-Control-Allow-Methods', 'GET, PUT, POST, DELETE')
+
     return response
 
 
