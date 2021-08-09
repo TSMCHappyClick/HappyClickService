@@ -32,7 +32,7 @@ def get_divisions():
 meds = [70523, 75088, 97493, 89384, 41195]
 
 
-def get_factorys():
+def get_factories():
     factory_code = {
         '台積總部及晶圓十二A廠': "F12A",
         '研發中心及晶圓十二B廠': "F12B",

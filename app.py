@@ -64,6 +64,23 @@ def load_user(user_id):
         return curr_user
 
 
+def check_identity(ID):
+    user = list(conn.happyclick.UserData.find({"id": ID}))
+    user_vac = list(conn.happyclick.StaffData.find({"id": ID}))
+
+    result = {
+            'identity': '',
+            'username': user[0]['username']
+        }
+    if ID in db.meds:
+        result['identity'] = 'med'
+    elif len(user_vac) == 1:
+        result['identity'] = 'staff'
+    else:
+        result['identity'] = 'employee'
+
+    return result
+
 class login(Resource):
     def get():
         return render_template('login.html')
@@ -91,16 +108,8 @@ class login(Resource):
                 # 通過Flask-Login的login_user方法登入使用者
                 # login_user(curr_user)
                 print('Succesfully login!')
-                # 查看是否是醫療人員
-                if ID in db.meds:
-                    return jsonify({
-                        'identity': 'med',
-                        'username': user[0]['username']
-                    })
-                return jsonify({
-                    'identity': 'employee',
-                    'username': user[0]['username']
-                })
+                # 查看identity
+                return check_identity(ID)
 
             print('Login fail!')
             return jsonify({'identity': 'Wrong id or password!'})
@@ -382,37 +391,37 @@ class find_vaccine_shot_rate(Resource):
 
 class find_fac_shot_rate(Resource):
     def get(self):
-        factorys = db.get_factorys()
+        factories = db.get_factories()
         fac_list=[]
         fac_shot=[0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0]
         fac_all=[1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1]
         fac_shot_rate=[]
         result = {   
-            'factorys':[],
+            'factories':[],
             'rate':[]
         }
 
-        for factory in factorys:
-            fac_list.append(factorys[factory])
+        for factory in factories:
+            fac_list.append(factories[factory])
         
         users = list(conn.happyclick.UserData.find({}))
         for user in users:
             user_vac = list(conn.happyclick.VaccinatedData.find({'id': user['id'] }))
             if len(user_vac) == 1 :
                 for i in range(len(fac_list)):
-                    if fac_list[i] == factorys[user['division']]:
+                    if fac_list[i] == factories[user['division']]:
                         fac_shot[i] += 1
                         fac_all[i] += 1
             else:
                 for i in range(len(fac_list)):
-                    if fac_list[i] == factorys[user['division']]:
+                    if fac_list[i] == factories[user['division']]:
                         fac_all[i] += 1
                         
         for i in range(len(fac_list)):
             rate = fac_shot[i] / fac_all[i]
             fac_shot_rate.append(rate)
         
-        result['factorys'] = fac_list
+        result['factories'] = fac_list
         result['rate'] = fac_shot_rate
 
         return result
