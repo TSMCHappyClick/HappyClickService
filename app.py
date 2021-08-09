@@ -104,7 +104,7 @@ class login(Resource):
 
         user_exist = check_user_existence(ID)
         if not user_exist:
-            return jsonify({'identity': 'No user to be found!'})
+            return {'identity': 'No user to be found!'}, 401
         else:
             user = list(conn.happyclick.UserData.find({"id": ID}))
             if password == user[0]['password']:
@@ -328,58 +328,14 @@ class UpdateVaccine(Resource):
             return jsonify({'msg': 'not login yet!'})
 
 
-def calculation(json_result):
-    json_after_cal = {
-        "龍潭封測廠": 0,
-        "竹科": 0,
-        "中科": 0,
-        "南科": 0,
-        "中國": 0,
-        "美國": 0,
-        "新加坡": 0
-    }
-    for key, values in json_result.items():
-        json_after_cal[key] = values[0] / values[1]
-
-    return json_after_cal
-
 
 class find_division_shot_rate(Resource):
     def get(self):
-        # if session.get('ID'):
-        workers = list(conn.happyclick.UserData.find({}))
-        Workers_vaccineds = list(conn.happyclick.VaccinatedData.find({}))
-        divisions = db.get_divisions()
-        result = {
-            "龍潭封測廠": [0, 1],
-            "竹科": [0, 1],
-            "中科": [0, 1],
-            "南科": [0, 1],
-            "中國": [0, 1],
-            "美國": [0, 1],
-            "新加坡": [0, 1]
-        }
-
-        for worker_vaccined in Workers_vaccineds:
-            workers_vac = list(conn.happyclick.UserData.find(
-                {'id': worker_vaccined['id']}))
-            if len(workers_vac) == 1:
-                for key, value in divisions.items():
-                    for i in range(len(value)):
-                        if value[i] == workers_vac[0]['division']:
-                            result[key][0] += 1
-
-        for key, value in divisions.items():
-            for i in range(len(value)):
-                for worker in workers:
-                    if value[i] == worker['division']:
-                        result[key][1] += 1
-
+        f = open ('div_report.json', "r")
+        result = json.loads(f.read())
         print(result)
-        result = calculation(result)
-        return result
-        # else:
-        #     return jsonify({'msg':'not login yet!'})
+
+        return result   
 
 
 class find_vaccine_shot_rate(Resource):
