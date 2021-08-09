@@ -106,13 +106,13 @@ class login(Resource):
                 session['ID'] = ID
 
                 # 通過Flask-Login的login_user方法登入使用者
-                # login_user(curr_user)
+                login_user(curr_user)
                 print('Succesfully login!')
                 # 查看identity
                 return check_identity(ID)
 
             print('Login fail!')
-            return jsonify({'identity': 'Wrong id or password!'})
+            return {'identity': 'Wrong id or password!'}, 401
 
 
 # find staff 底下 employee 注射狀況
