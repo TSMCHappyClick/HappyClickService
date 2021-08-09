@@ -40,8 +40,14 @@ server on heroku
 - Input : {'ID':int, 'password':string}
 - Output : 
     - 登入成功：
-      - 是醫護人員：{'identity':'med'}
-      - 不是醫護人員：{'identity':'employee'}
+   
+	      - 醫護人員：{'identity':'med' , 'username':name}
+
+	      - 主管：{'identity':'staff' , 'username':name}
+
+	      - 員工：{'identity':'employee' , 'username':name}
+	      
+	      
     - 登入失敗：{'identity':'Wrong id or password!'}
 ### logout (GET) -- login required
 - Input : 無
