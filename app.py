@@ -329,7 +329,7 @@ class UpdateVaccine(Resource):
                     "$inc": {"vaccine_amount": 1}})
             return jsonify({'msg': 'Update Vaccine successful!'})
         else:
-            return jsonify({'msg': 'Update Vaccine false'})
+            return {'msg': 'Update Vaccine false'}, 401
         # else:
         #     return jsonify({'msg': 'not login yet!'})
 
