@@ -417,10 +417,6 @@ class find_fac_shot_rate(Resource):
             'factories': [],
             'rate': []
         }
-        fake_result = {
-            'factories': [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-            'rate': [1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1]   
-        }
 
         for factory in factories:
             fac_list.append(factories[factory])
@@ -446,7 +442,7 @@ class find_fac_shot_rate(Resource):
         result['factories'] = fac_list
         result['rate'] = fac_shot_rate
 
-        return fake_result
+        return result
 
 
 @app.route('/logout')
