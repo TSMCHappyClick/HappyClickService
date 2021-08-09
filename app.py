@@ -206,22 +206,24 @@ class SaveReserve(Resource):
             username =  data["username"]
             vaccDate =  data["date"]
             vaccType =  data["vaccine_type"]
-
-            if (checkVaccineAmount(vaccDate, vaccType)):
-                # add data to DB
-                conn.happyclick.FormData.insert_one({'form_id': formId, 'id': int(userId),
-                                                    'username': username, 'vaccine_type': vaccType, 'date': vaccDate, 'status': False})
-                # update reserve amount
-                vaccineRecord = conn.happyclick.VaccineData.find_one(
-                    {'date': vaccDate, 'vaccine_type': vaccType})
-                conn.happyclick.VaccineData.update_one({'date': vaccDate, 'vaccine_type': vaccType},
-                                                    {'$set': {
-                                                        "reserve_amount": vaccineRecord['reserve_amount'] + 1}},
-                                                    upsert=False)
-                # TODO : handle exception
-                return jsonify({'msg': 'Reservation of vaccine successful!'})
-            else:
-                return jsonify({'msg': 'Reservation chosen is full!'})
+            if (not conn.happyclick.FormData.find_one({'id': int(userId), 'status': False})):
+                if (checkVaccineAmount(vaccDate, vaccType)):
+                    # add data to DB
+                    conn.happyclick.FormData.insert_one({'form_id': formId, 'id': int(userId),
+                                                        'username': username, 'vaccine_type': vaccType, 'date': vaccDate, 'status': False})
+                    # update reserve amount
+                    vaccineRecord = conn.happyclick.VaccineData.find_one(
+                        {'date': vaccDate, 'vaccine_type': vaccType})
+                    conn.happyclick.VaccineData.update_one({'date': vaccDate, 'vaccine_type': vaccType},
+                                                        {'$set': {
+                                                            "reserve_amount": vaccineRecord['reserve_amount'] + 1}},
+                                                        upsert=False)
+                    # TODO : handle exception
+                    return jsonify({'msg': 'Reservation of vaccine successful!'})
+                else:
+                    return jsonify({'msg': 'Reservation chosen is full!'})
+            else :
+                return jsonify({'msg':'You already made a reserve!'})
         else:
             return jsonify({'msg':'not login yet!'})
 
