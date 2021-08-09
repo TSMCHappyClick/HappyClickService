@@ -7,7 +7,7 @@ import os
 import json
 from flask_pymongo import PyMongo
 import pymongo
-from datetime import datetime
+import datetime
 import database as db
 import hashlib
 
@@ -307,25 +307,31 @@ class ReturnAvailable(Resource):
 
 class UpdateVaccine(Resource):
     def post(self):
-        if session.get('ID'):
-            vaccine_id_dict = {"AstraZeneca": 1, "Moderna": 2, "BioNTech": 3}
-            # get data from frontend json
-            vaccine_data = request.get_json(force=True)
+        # if session.get('ID'):
+        vaccine_id_dict = {"AstraZeneca": 1, "Moderna": 2, "BioNTech": 3}
+        now = datetime.datetime.now()
+        # get data from frontend json
+        vaccine_data = request.get_json(force=True)
+        now_date = datetime.date(int(str(now)[:4]), int(str(now)[5:7]), int(str(now)[8:10]))
+        input_date = datetime.date(int(vaccine_data["date"][:4]), int(vaccine_data["date"][5:7]), int(vaccine_data["date"][8:10]))
+        if input_date >= now_date:
             db_vaccine_data = conn.happyclick.VaccineData.find_one(
                 {"vaccine_type": vaccine_data["vaccine_type"], "date": vaccine_data["date"]})
             if db_vaccine_data is None:
                 conn.happyclick.VaccineData.insert(
                     {"vaccine_id": vaccine_id_dict[vaccine_data["vaccine_type"]],
-                     "date": vaccine_data["date"],
-                     "reserve_amount": 0,
-                     "vaccine_amount": 0,
-                     "vaccine_type": vaccine_data["vaccine_type"]})
+                    "date": vaccine_data["date"],
+                    "reserve_amount": 0,
+                    "vaccine_amount": 0,
+                    "vaccine_type": vaccine_data["vaccine_type"]})
             for num in range(int(vaccine_data["vaccine_amount"])):
                 conn.happyclick.VaccineData.update({"vaccine_type": vaccine_data["vaccine_type"], "date": vaccine_data["date"]}, {
                     "$inc": {"vaccine_amount": 1}})
             return jsonify({'msg': 'Update Vaccine successful!'})
         else:
-            return jsonify({'msg': 'not login yet!'})
+            return jsonify({'msg': 'Update Vaccine false'})
+        # else:
+        #     return jsonify({'msg': 'not login yet!'})
 
 
 
