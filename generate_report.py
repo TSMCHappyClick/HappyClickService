@@ -92,7 +92,7 @@ def find_division_shot_rate():
 
 
 fac_result = get_find_fac_shot_rate()
-div_result = get_find_fac_shot_rate()
+div_result = find_division_shot_rate()
 
 
 with open('fac_report.json', 'w') as f:
