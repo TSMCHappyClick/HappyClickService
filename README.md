@@ -40,6 +40,7 @@ server on heroku
 - Input : {'ID':int, 'password':string}
 - Output : 
     - 登入成功：
+   
 	      - 醫護人員：{'identity':'med' , 'username':name}
 
 	      - 主管：{'identity':'staff' , 'username':name}
