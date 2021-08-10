@@ -105,7 +105,7 @@ class login(Resource):
         ID = int(data['id'])
         password_before_hash = data['password']
         password = return_hash(password_before_hash)
-        print('id:{},password:{}'.format(ID, password))
+        logging.info('id:{},password:{}'.format(ID, password))
 
         user_exist = check_user_existence(ID)
         if not user_exist:
@@ -250,7 +250,7 @@ class CheckReserve(Resource):
             reserveRecord = conn.happyclick.FormData.find_one(
                 {'id': int(userId), 'status': False})  # prevend DB from query vaccinated record
             if reserveRecord:
-                print('\nFind one unvaccinated reserve!')
+                logging.info('\nFind one unvaccinated reserve!')
                 vaccine_type = reserveRecord['vaccine_type']
                 vaccine_date = reserveRecord['date']
                 return jsonify({'msg': 'Check reserve successful!', 'vaccine_type': vaccine_type, 'date': vaccine_date})
@@ -272,7 +272,7 @@ class RemoveReserve(Resource):
             reserveRecord = conn.happyclick.FormData.find_one(
                 {'id': int(userId), 'date': vaccDate, 'vaccine_type': vaccType, 'status': False})
             if reserveRecord:
-                print('\nFind one unvaccinated reserve!')
+                logging.info('\nFind one unvaccinated reserve!')
                 conn.happyclick.FormData.delete_one(
                     {'id': int(userId), 'date': vaccDate, 'vaccine_type': vaccType})
                 # update reserve amount
@@ -291,7 +291,7 @@ class RemoveReserve(Resource):
 
 class ReturnAvailable(Resource):
     def get(self):
-        print(session.get('ID'))
+        logging.debug(session.get('ID'))
         if session.get('ID'):
             # query DB for all vaccine record, and remove those are full
 
@@ -344,7 +344,7 @@ class find_division_shot_rate(Resource):
     def get(self):
         f = open ('div_report.json', "r")
         result = json.loads(f.read())
-        print(result)
+        logging.debug(result)
 
         return result   
 
@@ -377,7 +377,7 @@ class find_fac_shot_rate(Resource):
     def get(self):
         f = open ('fac_report.json', "r")
         result = json.loads(f.read())
-        print(result)
+        logging.debug(result)
 
         return result
 
