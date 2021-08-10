@@ -165,8 +165,10 @@ class UpdateVaccinated(Resource):
                     {"id": vaccinated_data["id"], "username": vaccinated_data["username"], "vaccinated_times": 0})
             conn.happyclick.VaccinatedData.update({"id": vaccinated_data["id"]}, {
                 "$inc": {"vaccinated_times": 1}})
+            logging.info('Update Vaccinated successful!')
             return jsonify({'msg': 'Update Vaccinated successful!'})
         else:
+            logging.error('not login yet!')
             return jsonify({'msg': 'not login yet!'})
 
 
@@ -185,9 +187,11 @@ class SearchFormData(Resource):
                 datas_to_front.append(formData_dict)
 
             if len(datas_to_front) == 0:
+                logging.warning('No FormData data!')
                 return jsonify({'msg': 'No FormData data!'})
             return jsonify(datas_to_front)
         else:
+            logging.error('not login yet!')
             return jsonify({'msg': 'not login yet!'})
 
 
@@ -234,12 +238,16 @@ class SaveReserve(Resource):
                                                             "reserve_amount": vaccineRecord['reserve_amount'] + 1}},
                                                            upsert=False)
                     # TODO : handle exception
+                    logging.info('Reservation of vaccine successful!')
                     return jsonify({'msg': 'Reservation of vaccine successful!'})
                 else:
+                    logging.warning('Reservation chosen is full!')
                     return jsonify({'msg': 'Reservation chosen is full!'})
             else:
+                logging.warning('You already made a reserve!')
                 return jsonify({'msg': 'You already made a reserve!'})
         else:
+            logging.error('not login yet!')
             return jsonify({'msg': 'not login yet!'})
 
 
@@ -255,8 +263,10 @@ class CheckReserve(Resource):
                 vaccine_date = reserveRecord['date']
                 return jsonify({'msg': 'Check reserve successful!', 'vaccine_type': vaccine_type, 'date': vaccine_date})
             else:
+                logging.warning('No reservation found!')
                 return jsonify({'msg': 'No reservation found!'})
         else:
+            logging.error('not login yet!')
             return jsonify({'msg': 'not login yet!'})
 
 
@@ -286,6 +296,7 @@ class RemoveReserve(Resource):
             else:
                 return jsonify({'msg': 'No reservation found!'})
         else:
+            logging.error('not login yet!')
             return jsonify({'msg': 'not login yet!'})
 
 
