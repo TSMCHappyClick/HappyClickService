@@ -41,7 +41,7 @@ class User(UserMixin):
 
 @app.after_request
 def after_request(response):
-    response.headers['Access-Control-Allow-Origin'] = 'http://happyclick.herokuapp.com'
+    response.headers['Access-Control-Allow-Origin'] = 'https://happyclick.herokuapp.com'
     response.headers.add('Access-Control-Allow-Headers',
                         'Access-Control-Allow-Headers, Access-Control-Allow-Origin, Origin, Accept, '
                         'X-Requested-With, Content-Type, '
