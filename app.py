@@ -293,11 +293,15 @@ class ReturnAvailable(Resource):
     def get(self):
         logging.debug(session.get('ID'))
         if session.get('ID'):
+            now = datetime.datetime.now()
             # query DB for all vaccine record, and remove those are full
 
             vaccineAvailable = conn.happyclick.VaccineData.find({})
+            
             availableList = [
-                x for x in vaccineAvailable if x['vaccine_amount'] > x['reserve_amount']]
+                x for x in vaccineAvailable if (x['vaccine_amount'] > x['reserve_amount'] 
+                and datetime.datetime.strptime(x['date'], "%Y-%m-%d") > now)
+            ]
             # implement json file of remaining vaccine for frontend
             returnList = []
             for i in availableList:
