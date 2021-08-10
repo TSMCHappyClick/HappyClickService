@@ -43,12 +43,13 @@ class User(UserMixin):
 def after_request(response):
     response.headers['Access-Control-Allow-Origin'] = 'https://happyclick.herokuapp.com'
     response.headers.add('Access-Control-Allow-Headers',
-                        'Access-Control-Allow-Headers, Access-Control-Allow-Origin, Origin, Accept, '
-                        'X-Requested-With, Content-Type, '
-                        'Access-Control-Request-Method, Access-Control-Request-Headers')
+                         'Access-Control-Allow-Headers, Access-Control-Allow-Origin, Origin, Accept, '
+                         'X-Requested-With, Content-Type, '
+                         'Access-Control-Request-Method, Access-Control-Request-Headers')
     response.headers.add('Access-Control-Allow-Credentials', 'true')
-    response.headers.add('Access-Control-Allow-Methods', 'GET, PUT, POST, DELETE')
-    
+    response.headers.add('Access-Control-Allow-Methods',
+                         'GET, PUT, POST, DELETE')
+
     return response
 
 
@@ -308,10 +309,10 @@ class ReturnAvailable(Resource):
             # query DB for all vaccine record, and remove those are full
 
             vaccineAvailable = conn.happyclick.VaccineData.find({})
-            
+
             availableList = [
-                x for x in vaccineAvailable if (x['vaccine_amount'] > x['reserve_amount'] 
-                and datetime.datetime.strptime(x['date'], "%Y-%m-%d") > now)
+                x for x in vaccineAvailable if (x['vaccine_amount'] > x['reserve_amount']
+                                                and datetime.datetime.strptime(x['date'], "%Y-%m-%d") > now)
             ]
             # implement json file of remaining vaccine for frontend
             returnList = []
@@ -332,18 +333,20 @@ class UpdateVaccine(Resource):
         now = datetime.datetime.now()
         # get data from frontend json
         vaccine_data = request.get_json(force=True)
-        now_date = datetime.date(int(str(now)[:4]), int(str(now)[5:7]), int(str(now)[8:10]))
-        input_date = datetime.date(int(vaccine_data["date"][:4]), int(vaccine_data["date"][5:7]), int(vaccine_data["date"][8:10]))
+        now_date = datetime.date(int(str(now)[:4]), int(
+            str(now)[5:7]), int(str(now)[8:10]))
+        input_date = datetime.date(int(vaccine_data["date"][:4]), int(
+            vaccine_data["date"][5:7]), int(vaccine_data["date"][8:10]))
         if input_date >= now_date:
             db_vaccine_data = conn.happyclick.VaccineData.find_one(
                 {"vaccine_type": vaccine_data["vaccine_type"], "date": vaccine_data["date"]})
             if db_vaccine_data is None:
                 conn.happyclick.VaccineData.insert(
                     {"vaccine_id": vaccine_id_dict[vaccine_data["vaccine_type"]],
-                    "date": vaccine_data["date"],
-                    "reserve_amount": 0,
-                    "vaccine_amount": 0,
-                    "vaccine_type": vaccine_data["vaccine_type"]})
+                     "date": vaccine_data["date"],
+                     "reserve_amount": 0,
+                     "vaccine_amount": 0,
+                     "vaccine_type": vaccine_data["vaccine_type"]})
             for num in range(int(vaccine_data["vaccine_amount"])):
                 conn.happyclick.VaccineData.update({"vaccine_type": vaccine_data["vaccine_type"], "date": vaccine_data["date"]}, {
                     "$inc": {"vaccine_amount": 1}})
@@ -354,14 +357,13 @@ class UpdateVaccine(Resource):
         #     return jsonify({'msg': 'not login yet!'})
 
 
-
 class find_division_shot_rate(Resource):
     def get(self):
-        f = open ('div_report.json', "r")
+        f = open('div_report.json', "r")
         result = json.loads(f.read())
         logging.debug(result)
 
-        return result   
+        return result
 
 
 class find_vaccine_shot_rate(Resource):
@@ -390,7 +392,7 @@ class find_vaccine_shot_rate(Resource):
 
 class find_fac_shot_rate(Resource):
     def get(self):
-        f = open ('fac_report.json', "r")
+        f = open('fac_report.json', "r")
         result = json.loads(f.read())
         logging.debug(result)
 
