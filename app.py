@@ -10,6 +10,7 @@ import pymongo
 import datetime
 import database as db
 import hashlib
+import logging
 
 app = Flask(__name__)
 api = Api(app)
@@ -40,7 +41,7 @@ class User(UserMixin):
 
 @app.after_request
 def after_request(response):
-    response.headers['Access-Control-Allow-Origin'] = 'https://happy-click.herokuapp.com'
+    response.headers['Access-Control-Allow-Origin'] = 'https://happyclick-healthcenter.herokuapp.com'
     response.headers.add('Access-Control-Allow-Headers',
                         'Access-Control-Allow-Headers, Access-Control-Allow-Origin, Origin, Accept, '
                         'X-Requested-With, Content-Type, '
@@ -120,11 +121,11 @@ class login(Resource):
 
                 # 通過Flask-Login的login_user方法登入使用者
                 login_user(curr_user)
-                print('Succesfully login!')
+                logging.info('Succesfully login!')
                 # 查看identity
                 return check_identity(ID)
 
-            print('Login fail!')
+            logging.error('Login fail!')
             return {'identity': 'Wrong id or password!'}, 401
 
 
